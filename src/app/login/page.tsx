@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session.data) {
-      router.replace("/estoque");
+      router.replace("/cardapio");
     }
   }, [router, session.data]);
 

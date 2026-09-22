@@ -22,7 +22,7 @@ export function useLogin() {
     mutationFn: (input: LoginInput) => authRepository.login(input),
     onSuccess: (user) => {
       queryClient.setQueryData(sessionQueryKey, user);
-      router.replace("/estoque");
+      router.replace("/cardapio");
     },
   });
 }
@@ -46,7 +46,7 @@ export function useVerifyAccount() {
     mutationFn: (token: string) => authRepository.verify(token),
     onSuccess: (user) => {
       queryClient.setQueryData(sessionQueryKey, user);
-      router.replace("/estoque");
+      router.replace("/cardapio");
     },
   });
 }
