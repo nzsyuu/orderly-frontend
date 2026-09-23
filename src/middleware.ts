@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const AUTH_COOKIE = "token";
 
-const publicPaths = ["/login", "/cadastro", "/verificar"];
+const publicPaths = ["/login", "/cadastro", "/verificar", "/cardapio"];
 
 const protectedPaths = ["/estoque", "/produtos"];
 
@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
 
   if (isPublicPath(pathname)) {
     if (hasToken && (pathname === "/login" || pathname === "/cadastro")) {
-      return NextResponse.redirect(new URL("/estoque", request.url));
+      return NextResponse.redirect(new URL("/cardapio", request.url));
     }
     return NextResponse.next();
   }
