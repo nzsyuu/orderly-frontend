@@ -13,6 +13,7 @@ import type { Product } from "@/modules/products/types/product";
 import { CreateProductDialog } from "@/modules/products/components/create-product-dialog";
 import { EditProductDialog } from "@/modules/products/components/edit-product-dialog";
 import { ProductDrawer } from "@/modules/products/components/product-drawer";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 const filters = [
   { label: "Todos", value: "todos" },
@@ -186,11 +187,38 @@ export function ProductsPanel() {
           </table>
 
           {isLoading && (
-            <div className="flex flex-col items-center justify-center gap-1 py-16 text-center">
-              <p className="text-foreground font-medium">
-                Carregando produtos...
-              </p>
-            </div>
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <thead>
+                <tr className="border-border text-muted-foreground border-b text-left text-xs tracking-wider uppercase">
+                  <th className="px-5 py-3 font-medium">Produto</th>
+                  <th className="px-5 py-3 font-medium">Preço</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-border border-b last:border-0">
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="mt-1.5 h-3 w-56" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-4 w-16" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-6 w-16 rounded-sm" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
 
           {isError && (

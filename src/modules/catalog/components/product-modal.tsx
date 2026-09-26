@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, Minus, Plus, ShoppingCart, UtensilsCrossed } from "lucide-react";
+import Image from "next/image";
 import { useProduct } from "@/modules/products/hooks/use-products";
 import { formatBRL } from "@/shared/lib/format";
 
@@ -57,9 +58,21 @@ export function ProductModal({
       <div className="border-border bg-card relative z-10 flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-xl border shadow-2xl">
         {/* Header/Image */}
         <div className="relative">
-          <div className="bg-accent/50 flex aspect-video w-full items-center justify-center">
-            <UtensilsCrossed className="text-muted-foreground/40 h-16 w-16" />
-          </div>
+          {product?.imageUrl ? (
+            <div className="relative aspect-[4/3] w-full">
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                sizes="(max-width: 448px) 100vw, 448px"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="bg-accent/50 flex aspect-[4/3] w-full items-center justify-center">
+              <UtensilsCrossed className="text-muted-foreground/40 h-16 w-16" />
+            </div>
+          )}
           <button
             type="button"
             onClick={onClose}

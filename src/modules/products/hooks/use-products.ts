@@ -80,6 +80,27 @@ export function useDeleteProduct() {
   });
 }
 
+export function useUploadProductImage() {
+  return useMutation({
+    mutationFn: (file: File) => productRepository.uploadImage(file),
+  });
+}
+
+export function useReplaceProductImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ productId, file }: { productId: number; file: File }) =>
+      productRepository.replaceImage(productId, file),
+    onSuccess: (product) => {
+      void queryClient.invalidateQueries({ queryKey: productsQueryKey });
+      void queryClient.invalidateQueries({
+        queryKey: productQueryKey(product.id),
+      });
+    },
+  });
+}
+
 export function useAddComposition(productId: number | null) {
   const queryClient = useQueryClient();
 

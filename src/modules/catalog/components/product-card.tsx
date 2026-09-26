@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingCart, UtensilsCrossed } from "lucide-react";
+import Image from "next/image";
 import type { Product } from "@/modules/products/types/product";
 import { formatBRL } from "@/shared/lib/format";
 import { cn } from "@/shared/lib/utils";
@@ -18,9 +19,19 @@ export function ProductCard({ product, onClick, onAddToCart, isAdding }: Product
       <button 
         type="button" 
         onClick={() => onClick(product)}
-        className="bg-accent/50 flex aspect-[4/3] w-full items-center justify-center cursor-pointer hover:bg-accent/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="bg-accent/50 relative flex aspect-[4/3] w-full items-center justify-center cursor-pointer hover:bg-accent/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring overflow-hidden"
       >
-        <UtensilsCrossed className="text-muted-foreground/40 h-12 w-12" />
+        {product.imageUrl ? (
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <UtensilsCrossed className="text-muted-foreground/40 h-12 w-12" />
+        )}
       </button>
 
       <div className="flex flex-1 flex-col p-4">

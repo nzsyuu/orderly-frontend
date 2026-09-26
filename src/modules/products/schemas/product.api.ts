@@ -9,6 +9,7 @@ export const productSchema = z.object({
   name: z.string(),
   description: z.string().nullable().optional(),
   price: z.coerce.number(),
+  imageUrl: z.string().nullable().optional(),
   active: z.boolean(),
 });
 
@@ -30,6 +31,7 @@ export function parseProduct(data: unknown): Product {
     name: parsed.name,
     description: parsed.description ?? null,
     price: parsed.price,
+    imageUrl: parsed.imageUrl ?? null,
     active: parsed.active,
   };
 }
