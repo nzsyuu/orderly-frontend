@@ -4,6 +4,7 @@ import { Boxes, AlertTriangle, XCircle, Wallet } from "lucide-react";
 import { useStockItems } from "@/modules/inventory/hooks/use-stock-items";
 import { statusOfItem } from "@/modules/inventory/types/stock-item";
 import { formatBRL } from "@/shared/lib/format";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export function StatCards() {
   const { data: items = [], isLoading } = useStockItems();
@@ -21,28 +22,28 @@ export function StatCards() {
   const cards = [
     {
       label: "Itens cadastrados",
-      valor: isLoading ? "â€”" : String(total),
+      valor: String(total),
       icon: Boxes,
       tone: "text-foreground",
       iconWrap: "bg-accent text-accent-foreground",
     },
     {
       label: "Estoque baixo",
-      valor: isLoading ? "â€”" : String(baixo),
+      valor: String(baixo),
       icon: AlertTriangle,
       tone: "text-warning",
       iconWrap: "bg-warning/15 text-warning",
     },
     {
       label: "Esgotados",
-      valor: isLoading ? "â€”" : String(esgotado),
+      valor: String(esgotado),
       icon: XCircle,
       tone: "text-destructive",
       iconWrap: "bg-destructive/15 text-destructive",
     },
     {
       label: "Valor em estoque",
-      valor: isLoading ? "â€”" : formatBRL(valorTotal),
+      valor: formatBRL(valorTotal),
       icon: Wallet,
       tone: "text-foreground",
       iconWrap: "bg-primary/15 text-primary",
@@ -63,9 +64,13 @@ export function StatCards() {
           </div>
           <div className="min-w-0">
             <p className="text-muted-foreground text-sm">{card.label}</p>
-            <p className={`font-display text-2xl font-bold ${card.tone}`}>
-              {card.valor}
-            </p>
+            {isLoading ? (
+              <Skeleton className="mt-1 h-7 w-16" />
+            ) : (
+              <p className={`font-display text-2xl font-bold ${card.tone}`}>
+                {card.valor}
+              </p>
+            )}
           </div>
         </div>
       ))}

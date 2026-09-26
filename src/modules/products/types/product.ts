@@ -3,6 +3,7 @@ export type Product = {
   name: string;
   description: string | null;
   price: number;
+  imageUrl: string | null;
   active: boolean;
 };
 
@@ -17,6 +18,7 @@ export type CreateProductInput = {
   name: string;
   description?: string | null;
   price: number;
+  imageUrl?: string | null;
   active?: boolean;
 };
 
@@ -29,6 +31,7 @@ export type UpdateProductInput = {
   name?: string;
   description?: string | null;
   price?: number;
+  imageUrl?: string | null;
   active?: boolean;
 };
 

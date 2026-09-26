@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Ban } from "lucide-react";
 import { useProducts } from "@/modules/products/hooks/use-products";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export function ProductStatCards() {
   const { data: products = [], isLoading } = useProducts();
@@ -12,14 +13,14 @@ export function ProductStatCards() {
   const cards = [
     {
       label: "Ativos",
-      valor: isLoading ? "â€”" : String(active),
+      valor: String(active),
       icon: CheckCircle2,
       tone: "text-success",
       iconWrap: "bg-success/15 text-success",
     },
     {
       label: "Inativos",
-      valor: isLoading ? "â€”" : String(inactive),
+      valor: String(inactive),
       icon: Ban,
       tone: "text-muted-foreground",
       iconWrap: "bg-muted text-muted-foreground",
@@ -40,9 +41,13 @@ export function ProductStatCards() {
           </div>
           <div className="min-w-0">
             <p className="text-muted-foreground text-sm">{card.label}</p>
-            <p className={`font-display text-2xl font-bold ${card.tone}`}>
-              {card.valor}
-            </p>
+            {isLoading ? (
+              <Skeleton className="mt-1 h-7 w-12" />
+            ) : (
+              <p className={`font-display text-2xl font-bold ${card.tone}`}>
+                {card.valor}
+              </p>
+            )}
           </div>
         </div>
       ))}

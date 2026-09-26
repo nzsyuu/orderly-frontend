@@ -11,6 +11,7 @@ import { ProductCard } from "@/modules/catalog/components/product-card";
 import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { ProductModal } from "@/modules/catalog/components/product-modal";
 import type { Product } from "@/modules/products/types/product";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export function CatalogPage() {
   const router = useRouter();
@@ -109,10 +110,26 @@ export function CatalogPage() {
           </div>
         </div>
 
-        {/* Loading */}
+        {/* Loading skeletons */}
         {products.isPending && (
-          <div className="flex items-center justify-center py-20">
-            <p className="text-muted-foreground text-sm">Carregando cardápio...</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="border-border bg-card flex flex-col overflow-hidden rounded-lg border"
+              >
+                <Skeleton className="aspect-[4/3] w-full rounded-none" />
+                <div className="flex flex-1 flex-col p-4">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="mt-2 h-4 w-full" />
+                  <Skeleton className="mt-1 h-4 w-2/3" />
+                  <div className="mt-auto flex items-end justify-between gap-2 pt-3">
+                    <Skeleton className="h-6 w-20" />
+                    <Skeleton className="h-9 w-28 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

@@ -18,6 +18,7 @@ import {
 } from "@/modules/inventory/types/stock-item";
 import { stockCategoryOptions } from "@/modules/inventory/schemas/stock-item-form";
 import { formatBRL } from "@/shared/lib/format";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 const statusConfig: Record<
   StockStatus,
@@ -278,11 +279,45 @@ export function InventoryPanel() {
           </table>
 
           {isLoading && (
-            <div className="flex flex-col items-center justify-center gap-1 py-16 text-center">
-              <p className="text-foreground font-medium">
-                Carregando estoque...
-              </p>
-            </div>
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <thead>
+                <tr className="border-border text-muted-foreground border-b text-left text-xs tracking-wider uppercase">
+                  <th className="px-5 py-3 font-medium">Item</th>
+                  <th className="px-5 py-3 font-medium">Categoria</th>
+                  <th className="px-5 py-3 font-medium">Quantidade</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-border border-b last:border-0">
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="mt-1.5 h-3 w-20" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-6 w-20 rounded-md" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="mt-1.5 h-1.5 w-28 rounded-full" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <Skeleton className="h-6 w-24 rounded-sm" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
 
           {isError && (
