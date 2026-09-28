@@ -17,7 +17,7 @@ import { getApiErrorMessage } from "@/shared/http/api-error";
 import { Button } from "@/shared/ui/button";
 import { fieldClassName, Modal } from "@/shared/ui/modal";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 
 type CreateProductDialogProps = {
   open: boolean;
@@ -63,7 +63,7 @@ export function CreateProductDialog({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setImageError("A imagem deve ter no máximo 2 MB.");
+      setImageError("A imagem deve ter no máximo 4 MB.");
       event.target.value = "";
       return;
     }
@@ -141,17 +141,14 @@ export function CreateProductDialog({
       subtitle="Cadastre um item do cardápio. A receita pode ser montada depois."
       onClose={handleClose}
     >
-      <form
-        className="mt-5 flex flex-col gap-4"
-        onSubmit={onFormSubmit}
-      >
+      <form className="mt-5 flex flex-col gap-4" onSubmit={onFormSubmit}>
         {/* Upload de Imagem */}
         <div className="flex flex-col gap-1.5">
           <span className="text-foreground text-sm font-medium">
             Imagem do produto
           </span>
           {imagePreview ? (
-            <div className="relative h-40 w-full overflow-hidden rounded-lg border border-input">
+            <div className="border-input relative h-40 w-full overflow-hidden rounded-lg border">
               <Image
                 src={imagePreview}
                 alt="Prévia da imagem"
@@ -162,7 +159,7 @@ export function CreateProductDialog({
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
               >
                 <X className="h-4 w-4" />
               </button>
