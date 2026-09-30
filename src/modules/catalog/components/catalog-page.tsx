@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, ChefHat } from "lucide-react";
 import { useProducts } from "@/modules/products/hooks/use-products";
 import { useSession } from "@/modules/auth/hooks/use-auth";
-import { useAddToCart } from "@/modules/cart/hooks/use-cart";
+import { useAddToCart, useCart, useUpdateCartItem } from "@/modules/cart/hooks/use-cart";
 import { CatalogNavbar } from "@/modules/catalog/components/catalog-navbar";
 import { ProductCard } from "@/modules/catalog/components/product-card";
 import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
@@ -19,6 +19,8 @@ export function CatalogPage() {
   const isLoggedIn = !!session.data;
   const products = useProducts();
   const addToCart = useAddToCart();
+  const updateCartItem = useUpdateCartItem();
+  const cart = useCart(isLoggedIn);
 
   const [search, setSearch] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
@@ -42,15 +44,29 @@ export function CatalogPage() {
     }
 
     setAddingId(product.id);
-    addToCart.mutate(
-      { productId: product.id, quantity: 1 },
-      {
-        onSettled: () => {
-          setAddingId(null);
-          setCartOpen(true); // Auto open cart after quick add
+    const existingItem = cart.data?.items.find((i) => i.productId === product.id);
+
+    if (existingItem) {
+      updateCartItem.mutate(
+        { productId: product.id, input: { quantity: existingItem.quantity + 1 } },
+        {
+          onSettled: () => {
+            setAddingId(null);
+            setCartOpen(true);
+          },
         },
-      },
-    );
+      );
+    } else {
+      addToCart.mutate(
+        { productId: product.id, quantity: 1 },
+        {
+          onSettled: () => {
+            setAddingId(null);
+            setCartOpen(true);
+          },
+        },
+      );
+    }
   }
 
   function handleAddFromModal(productId: number, quantity: number, observation: string) {
@@ -60,16 +76,31 @@ export function CatalogPage() {
     }
 
     setAddingId(productId);
-    addToCart.mutate(
-      { productId, quantity, observation: observation.trim() || undefined },
-      {
-        onSettled: () => {
-          setAddingId(null);
-          setSelectedProductId(null); // Close modal
-          setCartOpen(true); // Open cart to show success
+    const existingItem = cart.data?.items.find((i) => i.productId === productId);
+
+    if (existingItem) {
+      updateCartItem.mutate(
+        { productId, input: { quantity: existingItem.quantity + quantity } },
+        {
+          onSettled: () => {
+            setAddingId(null);
+            setSelectedProductId(null);
+            setCartOpen(true);
+          },
         },
-      },
-    );
+      );
+    } else {
+      addToCart.mutate(
+        { productId, quantity, observation: observation.trim() || undefined },
+        {
+          onSettled: () => {
+            setAddingId(null);
+            setSelectedProductId(null);
+            setCartOpen(true);
+          },
+        },
+      );
+    }
   }
 
   return (

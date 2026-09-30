@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import {
   useCart,
@@ -20,6 +21,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const updateItem = useUpdateCartItem();
   const removeItem = useRemoveCartItem();
   const clearCart = useClearCart();
+  const router = useRouter();
 
   useEffect(() => {
     if (open) {
@@ -187,6 +189,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  onClose();
+                  router.push("/checkout");
+                }}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 flex-[2] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
               >
                 Finalizar pedido
