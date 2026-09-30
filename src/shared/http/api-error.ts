@@ -25,6 +25,9 @@ function translateApiMessage(message: string) {
   if (lower.includes("is locked")) {
     return "Conta temporariamente bloqueada. Tente de novo em alguns minutos.";
   }
+  if (lower.includes("unfortunately, we do not deliver to the city")) {
+    return "Infelizmente ainda não fazemos entregas para esta cidade.";
+  }
 
   return message;
 }
