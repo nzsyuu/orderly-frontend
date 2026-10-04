@@ -6,6 +6,7 @@ type ModalProps = {
   open: boolean;
   title: string;
   subtitle?: string;
+  wide?: boolean;
   onClose: () => void;
   children: React.ReactNode;
 };
@@ -14,6 +15,7 @@ export function Modal({
   open,
   title,
   subtitle,
+  wide = false,
   onClose,
   children,
 }: ModalProps) {
@@ -42,7 +44,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="border-border bg-card relative z-10 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-md border p-5 shadow-lg"
+        className={`border-border bg-card relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-md border p-5 shadow-lg ${wide ? "max-w-2xl" : "max-w-md"}`}
       >
         <h2 className="font-display text-foreground text-lg font-bold">
           {title}
