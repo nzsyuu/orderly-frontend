@@ -6,13 +6,16 @@ import type {
   RegisterMovementInput,
   Stock,
   StockItem,
+  StockLot,
   UpdateStockItemInput,
 } from "@/modules/inventory/types/stock-item";
 import {
   parseStock,
   parseStockItem,
+  parseStockLot,
   stockItemListResponseSchema,
   stockListResponseSchema,
+  stockLotListResponseSchema,
 } from "@/modules/inventory/schemas/stock-item.api";
 
 export class HttpInventoryRepository implements InventoryRepository {
@@ -74,6 +77,11 @@ export class HttpInventoryRepository implements InventoryRepository {
     await this.http.delete(`/api/stock-items/${id}`);
   }
 
+  async listLots(id: number): Promise<StockLot[]> {
+    const { data } = await this.http.get(`/api/stock-items/${id}/lots`);
+    return stockLotListResponseSchema.parse(data).map(parseStockLot);
+  }
+
   async registerMovement(
     id: number,
     input: RegisterMovementInput,
@@ -82,6 +90,7 @@ export class HttpInventoryRepository implements InventoryRepository {
       type: input.type,
       quantity: input.quantity,
       reason: input.reason,
+      ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
     });
     return parseStockItem(data);
   }

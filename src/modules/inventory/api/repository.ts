@@ -4,6 +4,7 @@ import type {
   RegisterMovementInput,
   Stock,
   StockItem,
+  StockLot,
   UpdateStockItemInput,
 } from "@/modules/inventory/types/stock-item";
 
@@ -16,6 +17,7 @@ export interface InventoryRepository {
   create(stockId: number, input: CreateStockItemInput): Promise<StockItem>;
   update(id: number, input: UpdateStockItemInput): Promise<StockItem>;
   delete(id: number): Promise<void>;
+  listLots(id: number): Promise<StockLot[]>;
   registerMovement(
     id: number,
     input: RegisterMovementInput,

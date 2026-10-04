@@ -4,7 +4,7 @@ const AUTH_COOKIE = "token";
 
 const publicPaths = ["/login", "/cadastro", "/verificar", "/cardapio"];
 
-const protectedPaths = ["/estoque", "/produtos"];
+const protectedPaths = ["/estoque", "/produtos", "/painel", "/lojas"];
 
 function isPublicPath(pathname: string) {
   return publicPaths.some(

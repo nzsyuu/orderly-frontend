@@ -45,10 +45,28 @@ export type RegisterMovementInput = {
   type: MovementType;
   quantity: number;
   reason: string;
+  expiresAt?: string;
 };
+
+export type StockLot = {
+  lotId: number;
+  stockItemId: number;
+  quantity: number;
+  expiresAt: string;
+  receivedAt: string;
+  daysUntilExpiry: number;
+};
+
+export type LotExpiryStatus = "expired" | "critical" | "ok";
 
 export function statusOfItem(item: StockItem): StockStatus {
   if (item.currentQuantity <= 0) return "esgotado";
   if (item.currentQuantity <= item.minimumStock) return "baixo";
+  return "ok";
+}
+
+export function statusOfLot(daysUntilExpiry: number): LotExpiryStatus {
+  if (daysUntilExpiry < 0) return "expired";
+  if (daysUntilExpiry <= 3) return "critical";
   return "ok";
 }
