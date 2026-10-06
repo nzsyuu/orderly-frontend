@@ -1,15 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, Plus, Minus, Pencil, Trash2 } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowLeftRight,
+  CalendarClock,
+} from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import {
   useDeleteStockItem,
-  useRegisterMovement,
   useStockItems,
 } from "@/modules/inventory/hooks/use-stock-items";
 import { CreateStockItemDialog } from "@/modules/inventory/components/create-stock-item-dialog";
 import { EditStockItemDialog } from "@/modules/inventory/components/edit-stock-item-dialog";
+import { RegisterMovementDialog } from "@/modules/inventory/components/register-movement-dialog";
+import { StockItemLotsDialog } from "@/modules/inventory/components/stock-item-lots-dialog";
 import { getApiErrorMessage } from "@/shared/http/api-error";
 import {
   statusOfItem,
@@ -88,12 +96,13 @@ function StockLevel({ item }: { item: StockItem }) {
 
 export function InventoryPanel() {
   const { data: items = [], isLoading, isError } = useStockItems();
-  const registerMovement = useRegisterMovement();
   const deleteStockItem = useDeleteStockItem();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("todos");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
+  const [lotsItem, setLotsItem] = useState<StockItem | null>(null);
+  const [movementItem, setMovementItem] = useState<StockItem | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const filters = useMemo(() => {
@@ -130,27 +139,15 @@ export function InventoryPanel() {
       if (editingItem?.id === item.id) {
         setEditingItem(null);
       }
+      if (lotsItem?.id === item.id) {
+        setLotsItem(null);
+      }
+      if (movementItem?.id === item.id) {
+        setMovementItem(null);
+      }
     } catch (error) {
       setActionError(
         getApiErrorMessage(error, "Não foi possível excluir o item."),
-      );
-    }
-  }
-
-  async function handleMovement(item: StockItem, type: "ENTRADA" | "SAIDA") {
-    setActionError(null);
-    try {
-      await registerMovement.mutateAsync({
-        id: item.id,
-        input: {
-          type,
-          quantity: 1,
-          reason: "Ajuste manual",
-        },
-      });
-    } catch (error) {
-      setActionError(
-        getApiErrorMessage(error, "Não foi possível registrar a movimentação."),
       );
     }
   }
@@ -238,6 +235,22 @@ export function InventoryPanel() {
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
+                        aria-label={`Ver lotes de ${item.name}`}
+                        onClick={() => setLotsItem(item)}
+                        className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-8 w-8 items-center justify-center rounded-lg border transition-colors"
+                      >
+                        <CalendarClock className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Movimentar ${item.name}`}
+                        onClick={() => setMovementItem(item)}
+                        className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-8 w-8 items-center justify-center rounded-lg border transition-colors"
+                      >
+                        <ArrowLeftRight className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
                         aria-label={`Editar ${item.name}`}
                         onClick={() => setEditingItem(item)}
                         className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-8 w-8 items-center justify-center rounded-lg border transition-colors"
@@ -252,24 +265,6 @@ export function InventoryPanel() {
                         className="border-border text-muted-foreground hover:border-destructive/40 hover:text-destructive flex h-8 w-8 items-center justify-center rounded-lg border transition-colors disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Registrar saída de ${item.name}`}
-                        disabled={registerMovement.isPending}
-                        onClick={() => void handleMovement(item, "SAIDA")}
-                        className="border-border text-muted-foreground hover:border-destructive/40 hover:text-destructive flex h-8 w-8 items-center justify-center rounded-lg border transition-colors disabled:opacity-50"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Registrar entrada de ${item.name}`}
-                        disabled={registerMovement.isPending}
-                        onClick={() => void handleMovement(item, "ENTRADA")}
-                        className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-8 w-8 items-center justify-center rounded-lg border transition-colors disabled:opacity-50"
-                      >
-                        <Plus className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -358,6 +353,14 @@ export function InventoryPanel() {
         item={editingItem}
         onClose={() => setEditingItem(null)}
       />
+      <StockItemLotsDialog item={lotsItem} onClose={() => setLotsItem(null)} />
+      {movementItem ? (
+        <RegisterMovementDialog
+          key={movementItem.id}
+          item={movementItem}
+          onClose={() => setMovementItem(null)}
+        />
+      ) : null}
     </>
   );
 }

@@ -11,11 +11,13 @@ import {
   Settings,
   ChefHat,
   LogOut,
+  Store,
 } from "lucide-react";
 import { useLogout, useSession } from "@/modules/auth/hooks/use-auth";
 
 const navItems = [
-  { label: "Painel", icon: LayoutDashboard, href: null },
+  { label: "Painel", icon: LayoutDashboard, href: "/painel" },
+  { label: "Lojas", icon: Store, href: "/lojas" },
   { label: "Estoque", icon: Boxes, href: "/estoque" },
   { label: "Produtos", icon: Package, href: "/produtos" },
   { label: "Vendas", icon: ShoppingCart, href: null },

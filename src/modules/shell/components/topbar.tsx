@@ -5,6 +5,14 @@ import { usePathname } from "next/navigation";
 import { useSession } from "@/modules/auth/hooks/use-auth";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
+  "/painel": {
+    title: "Painel",
+    subtitle: "Vendas do período e o que fazer hoje na operação",
+  },
+  "/lojas": {
+    title: "Lojas",
+    subtitle: "Cadastro, horário de funcionamento e status das unidades",
+  },
   "/estoque": {
     title: "Estoque",
     subtitle: "Acompanhe insumos e produtos da sua operação",

@@ -1,5 +1,9 @@
 import { z } from "zod";
-import type { Stock, StockItem } from "@/modules/inventory/types/stock-item";
+import type {
+  Stock,
+  StockItem,
+  StockLot,
+} from "@/modules/inventory/types/stock-item";
 
 export const stockResponseSchema = z.object({
   id: z.number(),
@@ -28,4 +32,19 @@ export function parseStock(data: unknown): Stock {
 
 export function parseStockItem(data: unknown): StockItem {
   return stockItemResponseSchema.parse(data);
+}
+
+export const stockLotResponseSchema = z.object({
+  lotId: z.number(),
+  stockItemId: z.number(),
+  quantity: z.coerce.number(),
+  expiresAt: z.string(),
+  receivedAt: z.string(),
+  daysUntilExpiry: z.coerce.number(),
+});
+
+export const stockLotListResponseSchema = z.array(stockLotResponseSchema);
+
+export function parseStockLot(data: unknown): StockLot {
+  return stockLotResponseSchema.parse(data);
 }

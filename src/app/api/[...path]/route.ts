@@ -11,6 +11,8 @@ const allowedPathPrefixes = [
   "sales",
   "cart",
   "addresses",
+  "stores",
+  "insights",
 ] as const;
 
 function isAllowedProxyPath(path: string[]) {

@@ -59,6 +59,33 @@ export type UpdateStockItemFormValues = z.infer<
   typeof updateStockItemFormSchema
 >;
 
+export const movementFormSchema = z
+  .object({
+    type: z.enum(["ENTRADA", "SAIDA", "PERDA"]),
+    quantity: z
+      .number({ error: "Informe a quantidade" })
+      .int("A quantidade deve ser um número inteiro")
+      .min(1, "A quantidade deve ser maior que zero"),
+    reason: z
+      .string()
+      .trim()
+      .min(2, "Informe o motivo")
+      .max(200, "O motivo deve ter no máximo 200 caracteres"),
+    expiresAt: z.string().optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.type !== "ENTRADA") return;
+    if (!values.expiresAt || !/^\d{4}-\d{2}-\d{2}$/.test(values.expiresAt)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["expiresAt"],
+        message: "Informe a data de validade",
+      });
+    }
+  });
+
+export type MovementFormValues = z.infer<typeof movementFormSchema>;
+
 export const STOCK_UNITS = ["un", "kg", "g", "L", "ml", "pct", "cx"] as const;
 
 export const STOCK_CATEGORIES = [
