@@ -10,6 +10,8 @@ import { CatalogNavbar } from "@/modules/catalog/components/catalog-navbar";
 import { ProductCard } from "@/modules/catalog/components/product-card";
 import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { ProductModal } from "@/modules/catalog/components/product-modal";
+import { ActiveOrderBanner } from "@/modules/orders/components/active-order-banner";
+import { useActiveOrders } from "@/modules/orders/hooks/use-orders";
 import type { Product } from "@/modules/products/types/product";
 import { Skeleton } from "@/shared/ui/skeleton";
 
@@ -21,6 +23,8 @@ export function CatalogPage() {
   const addToCart = useAddToCart();
   const updateCartItem = useUpdateCartItem();
   const cart = useCart(isLoggedIn);
+  const { activeOrders } = useActiveOrders(isLoggedIn);
+  const hasActiveOrders = activeOrders.length > 0;
 
   const [search, setSearch] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
@@ -126,7 +130,9 @@ export function CatalogPage() {
       </section>
 
       {/* Search & Product Grid */}
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
+      <main
+        className={`mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 ${hasActiveOrders ? "pb-24" : ""}`}
+      >
         {/* Search */}
         <div className="mb-6">
           <div className="relative max-w-sm">
@@ -206,6 +212,8 @@ export function CatalogPage() {
           </p>
         </div>
       </footer>
+
+      {isLoggedIn && <ActiveOrderBanner />}
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       

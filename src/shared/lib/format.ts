@@ -11,3 +11,10 @@ export function formatDate(value: string) {
   if (!year || !month || !day) return value;
   return new Date(year, month - 1, day).toLocaleDateString("pt-BR");
 }
+
+export function formatDateTime(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (!match) return formatDate(value);
+  const [, year, month, day, hour, minute] = match;
+  return `${day}/${month}/${year} às ${hour}:${minute}`;
+}

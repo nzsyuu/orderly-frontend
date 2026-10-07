@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Sale } from "@/modules/sales/types/sale";
+import type { Sale, SaleStatus } from "@/modules/sales/types/sale";
 
 const saleItemSchema = z.object({
   productId: z.coerce.number(),
@@ -27,7 +27,7 @@ export function parseSale(data: unknown): Sale {
     saleId: parsed.saleId,
     storeId: parsed.storeId,
     date: parsed.date,
-    status: parsed.status,
+    status: parsed.status as SaleStatus,
     totalAmount: parsed.totalAmount,
     items: parsed.items,
   };

@@ -1,3 +1,5 @@
+import type { SaleStatus } from "@/modules/sales/types/sale";
+
 export type CheckoutInput = {
   shoppingCartId: string;
   addressId: string;
@@ -16,7 +18,7 @@ export type SaleResponse = {
   saleId: string;
   storeId: number;
   date: string;
-  status: string;
+  status: SaleStatus;
   totalAmount: number;
   observation: string;
   items: SaleItem[];

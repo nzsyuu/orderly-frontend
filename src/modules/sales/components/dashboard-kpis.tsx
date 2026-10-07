@@ -18,7 +18,7 @@ export function DashboardKpis({ kpis, isLoading }: DashboardKpisProps) {
           <ShoppingCart className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="text-muted-foreground text-sm">Vendas confirmadas</p>
+          <p className="text-muted-foreground text-sm">Vendas realizadas</p>
           {isLoading ? (
             <Skeleton className="mt-1 h-7 w-16" />
           ) : (
@@ -60,7 +60,7 @@ export function DashboardKpis({ kpis, isLoading }: DashboardKpisProps) {
           </div>
         ) : kpis.topProducts.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            Nenhuma venda confirmada neste recorte.
+            Nenhuma venda realizada neste recorte.
           </p>
         ) : (
           <ol className="flex flex-col gap-2">

@@ -1,4 +1,12 @@
-export type SaleStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
+export type SaleStatus =
+  | "PENDENTE"
+  | "EM_PREPARO"
+  | "EM_ROTA"
+  | "ENTREGUE"
+  | "CANCELADA";
+
+/** Status que contam como venda nos KPIs. */
+export const COUNTED_SALE_STATUSES: readonly string[] = ["EM_ROTA", "ENTREGUE"];
 
 export type SaleItem = {
   productId: number;
@@ -11,7 +19,7 @@ export type Sale = {
   saleId: string;
   storeId: number;
   date: string;
-  status: string;
+  status: SaleStatus;
   totalAmount: number;
   items: SaleItem[];
 };
@@ -36,7 +44,7 @@ export function aggregateSalesKpis(
   storeFilter: StoreFilter,
 ): SalesKpis {
   const confirmed = sales.filter((sale) => {
-    if (sale.status !== "CONFIRMED") return false;
+    if (!COUNTED_SALE_STATUSES.includes(sale.status)) return false;
     if (storeFilter === "all") return true;
     return sale.storeId === storeFilter;
   });

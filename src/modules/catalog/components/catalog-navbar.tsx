@@ -2,13 +2,14 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChefHat, ShoppingCart, User, LogOut, MapPin, ChevronDown } from "lucide-react";
-import { useSession, useLogout } from "@/modules/auth/hooks/use-auth";
+import { ChefHat, ShoppingCart, User, MapPin, ChevronDown } from "lucide-react";
+import { useSession } from "@/modules/auth/hooks/use-auth";
 import { useCart } from "@/modules/cart/hooks/use-cart";
 import { useAddresses } from "@/modules/address/hooks/use-address";
 import { AddressSelectorModal } from "@/modules/address/components/address-selector-modal";
 import { AddressFormModal } from "@/modules/address/components/address-form-modal";
 import type { Address } from "@/modules/address/types/address";
+import { UserMenu } from "@/modules/shell/components/user-menu";
 
 type CatalogNavbarProps = {
   onCartClick: () => void;
@@ -16,7 +17,6 @@ type CatalogNavbarProps = {
 
 export function CatalogNavbar({ onCartClick }: CatalogNavbarProps) {
   const session = useSession();
-  const logout = useLogout();
   const isLoggedIn = !!session.data;
   const cart = useCart(isLoggedIn);
   const addresses = useAddresses(isLoggedIn);
@@ -124,14 +124,6 @@ export function CatalogNavbar({ onCartClick }: CatalogNavbarProps) {
 
                 <button
                   type="button"
-                  onClick={() => logout.mutate()}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sair</span>
-                </button>
-                <button
-                  type="button"
                   onClick={onCartClick}
                   className="text-muted-foreground hover:text-foreground relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
                 >
@@ -142,6 +134,7 @@ export function CatalogNavbar({ onCartClick }: CatalogNavbarProps) {
                     </span>
                   )}
                 </button>
+                <UserMenu />
               </>
             ) : (
               <Link

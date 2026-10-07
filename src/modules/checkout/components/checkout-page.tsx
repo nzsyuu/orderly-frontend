@@ -13,8 +13,6 @@ import {
   Wallet,
   Loader2,
   CheckCircle2,
-  Package,
-  Truck,
   ChevronRight,
   AlertTriangle,
   MessageSquare,
@@ -28,9 +26,8 @@ import { AddressSelectorModal } from "@/modules/address/components/address-selec
 import { formatBRL } from "@/shared/lib/format";
 import { getApiErrorMessage } from "@/shared/http/api-error";
 import type { Address } from "@/modules/address/types/address";
-import type { SaleResponse } from "@/modules/checkout/types/checkout";
 
-type CheckoutStep = "review" | "payment" | "success";
+type CheckoutStep = "review" | "payment";
 
 export function CheckoutPage() {
   const router = useRouter();
@@ -44,7 +41,6 @@ export function CheckoutPage() {
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [observation, setObservation] = useState("");
   const [error, setError] = useState("");
-  const [saleResult, setSaleResult] = useState<SaleResponse | null>(null);
   const [addressFormOpen, setAddressFormOpen] = useState(false);
   const [addressSelectorOpen, setAddressSelectorOpen] = useState(false);
 
@@ -94,8 +90,7 @@ export function CheckoutPage() {
       },
       {
         onSuccess: (sale) => {
-          setSaleResult(sale);
-          setStep("success");
+          router.replace(`/pedidos/${sale.saleId}?novo=1`);
         },
         onError: (err) => {
           setError(getApiErrorMessage(err, "Não foi possível finalizar o pedido."));
@@ -113,12 +108,12 @@ export function CheckoutPage() {
 
   // Redirect if cart is empty (only on review step)
   useEffect(() => {
-    if (cart.isSuccess && items.length === 0 && step === "review") {
+    if (cart.isSuccess && items.length === 0 && step === "review" && !checkout.isSuccess) {
       router.replace("/cardapio");
     }
-  }, [cart.isSuccess, items.length, step, router]);
+  }, [cart.isSuccess, items.length, step, checkout.isSuccess, router]);
 
-  if (!user || (cart.isSuccess && items.length === 0 && step !== "success")) {
+  if (!user || (cart.isSuccess && items.length === 0) || checkout.isSuccess) {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
         <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
@@ -438,96 +433,6 @@ export function CheckoutPage() {
             </button>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  // ---------- SUCCESS STEP ----------
-  if (step === "success" && saleResult) {
-    return (
-      <div className="bg-background flex min-h-screen flex-col">
-        <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-12">
-          {/* Success icon */}
-          <div className="bg-success/10 mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-            <CheckCircle2 className="text-success h-10 w-10" />
-          </div>
-
-          <h1 className="font-display text-foreground mb-2 text-2xl font-bold">
-            Pedido enviado!
-          </h1>
-          <p className="text-muted-foreground mb-8 max-w-sm text-center text-sm">
-            Seu pedido foi recebido com sucesso e está sendo preparado.
-          </p>
-
-          {/* Order summary card */}
-          <div className="border-border bg-card w-full max-w-md rounded-lg border p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                Pedido
-              </span>
-              <span className="text-foreground rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-semibold">
-                #{saleResult.saleId.slice(0, 8)}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              {/* Status */}
-              <div className="flex items-center gap-2">
-                <Package className="text-warning h-4 w-4" />
-                <span className="text-foreground text-sm font-medium">
-                  {saleResult.status === "PENDING" ? "Pendente" : saleResult.status}
-                </span>
-              </div>
-
-              {/* Items count */}
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="text-muted-foreground h-4 w-4" />
-                <span className="text-muted-foreground text-sm">
-                  {saleResult.items.length} {saleResult.items.length === 1 ? "item" : "itens"}
-                </span>
-              </div>
-
-              {/* Delivery */}
-              <div className="flex items-center gap-2">
-                <Truck className="text-muted-foreground h-4 w-4" />
-                <span className="text-muted-foreground text-sm">
-                  {saleResult.deliveryStreet}, {saleResult.deliveryNumber} — {saleResult.deliveryNeighborhood}
-                </span>
-              </div>
-
-              {/* Total */}
-              <div className="border-border mt-1 border-t pt-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Frete</span>
-                  <span className="text-foreground text-sm">{formatBRL(saleResult.deliveryFee)}</span>
-                </div>
-                <div className="mt-1 flex items-center justify-between">
-                  <span className="text-foreground font-semibold">Total</span>
-                  <span className="font-display text-foreground text-lg font-bold">
-                    {formatBRL(saleResult.totalAmount)}
-                  </span>
-                </div>
-              </div>
-
-              {saleResult.observation && (
-                <div className="mt-1 rounded-md bg-muted/50 p-2">
-                  <p className="text-muted-foreground text-xs italic">
-                    Obs: {saleResult.observation}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Back to menu */}
-          <button
-            type="button"
-            onClick={() => router.replace("/cardapio")}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 mt-8 rounded-lg px-6 py-3 text-sm font-medium transition-colors"
-          >
-            Voltar ao cardápio
-          </button>
-        </main>
       </div>
     );
   }
