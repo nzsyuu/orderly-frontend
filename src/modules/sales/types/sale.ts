@@ -21,7 +21,15 @@ export type Sale = {
   date: string;
   status: SaleStatus;
   totalAmount: number;
+  observation?: string;
   items: SaleItem[];
+  userId: string;
+  deliveryFee: number;
+  deliveryStreet: string;
+  deliveryNumber: string;
+  deliveryNeighborhood: string;
+  deliveryCity: string;
+  deliveryZipCode: string;
 };
 
 export type StoreFilter = number | "all";

@@ -15,7 +15,15 @@ export const saleListItemSchema = z
     date: z.string(),
     status: z.string(),
     totalAmount: z.coerce.number(),
+    observation: z.string().optional(),
     items: z.array(saleItemSchema).default([]),
+    userId: z.string().default(""),
+    deliveryFee: z.coerce.number().default(0),
+    deliveryStreet: z.string().default(""),
+    deliveryNumber: z.string().default(""),
+    deliveryNeighborhood: z.string().default(""),
+    deliveryCity: z.string().default(""),
+    deliveryZipCode: z.string().default(""),
   })
   .passthrough();
 
@@ -29,6 +37,14 @@ export function parseSale(data: unknown): Sale {
     date: parsed.date,
     status: parsed.status as SaleStatus,
     totalAmount: parsed.totalAmount,
+    observation: parsed.observation,
     items: parsed.items,
+    userId: parsed.userId,
+    deliveryFee: parsed.deliveryFee,
+    deliveryStreet: parsed.deliveryStreet,
+    deliveryNumber: parsed.deliveryNumber,
+    deliveryNeighborhood: parsed.deliveryNeighborhood,
+    deliveryCity: parsed.deliveryCity,
+    deliveryZipCode: parsed.deliveryZipCode,
   };
 }

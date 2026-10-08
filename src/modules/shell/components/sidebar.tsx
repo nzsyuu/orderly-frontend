@@ -20,7 +20,7 @@ const navItems = [
   { label: "Lojas", icon: Store, href: "/lojas" },
   { label: "Estoque", icon: Boxes, href: "/estoque" },
   { label: "Produtos", icon: Package, href: "/produtos" },
-  { label: "Vendas", icon: ShoppingCart, href: null },
+  { label: "Pedidos", icon: ShoppingCart, href: "/painel/pedidos" },
   { label: "Fornecedores", icon: Users, href: null },
 ] as const;
 
