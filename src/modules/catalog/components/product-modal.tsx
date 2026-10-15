@@ -11,6 +11,8 @@ type ProductModalProps = {
   onClose: () => void;
   onAddToCart: (productId: number, quantity: number, observation: string) => void;
   isAdding?: boolean;
+  /** Loja fechada ou pausada: o botão fica indisponível. */
+  disabled?: boolean;
 };
 
 export function ProductModal({
@@ -18,6 +20,7 @@ export function ProductModal({
   onClose,
   onAddToCart,
   isAdding,
+  disabled,
 }: ProductModalProps) {
   const productQuery = useProduct(productId);
   const product = productQuery.data;
@@ -154,15 +157,19 @@ export function ProductModal({
             <div className="border-border border-t p-5">
               <button
                 type="button"
-                disabled={isAdding}
+                disabled={isAdding || disabled}
                 onClick={() => onAddToCart(product.id, quantity, observation)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium transition-colors disabled:opacity-50"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>
-                  {isAdding ? "Adicionando..." : "Adicionar ao carrinho"}
+                  {isAdding
+                    ? "Adicionando..."
+                    : disabled
+                      ? "Loja não está aceitando pedidos"
+                      : "Adicionar ao carrinho"}
                 </span>
-                {!isAdding && (
+                {!isAdding && !disabled && (
                   <span className="ml-1 opacity-90">
                     • {formatBRL(product.price * quantity)}
                   </span>

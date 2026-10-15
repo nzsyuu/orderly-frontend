@@ -19,6 +19,8 @@ import { groupProductsByCategory } from "@/modules/catalog/lib/categories";
 import { ProductCard } from "@/modules/catalog/components/product-card";
 import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { ProductModal } from "@/modules/catalog/components/product-modal";
+import { StoreClosedBanner } from "@/modules/stores/components/store-closed-banner";
+import { useStore } from "@/modules/stores/hooks/use-stores";
 import { ActiveOrderBanner } from "@/modules/orders/components/active-order-banner";
 import { useActiveOrders } from "@/modules/orders/hooks/use-orders";
 import type { Product } from "@/modules/products/types/product";
@@ -29,6 +31,9 @@ export function CatalogPage() {
   const session = useSession();
   const isLoggedIn = !!session.data;
   const products = useProducts();
+  const store = useStore();
+  // Enquanto o status não carrega (ou falha), não bloqueia: o backend valida no checkout.
+  const canOrder = !store.data || store.data.status === "ABERTA";
   const addToCart = useAddToCart();
   const updateCartItem = useUpdateCartItem();
   const cart = useCart(isLoggedIn);
@@ -55,6 +60,7 @@ export function CatalogPage() {
   const groups = groupProductsByCategory(filteredProducts);
 
   function handleAddToCart(product: Product) {
+    if (!canOrder) return;
     if (!isLoggedIn) {
       router.push("/login");
       return;
@@ -96,6 +102,7 @@ export function CatalogPage() {
     quantity: number,
     observation: string,
   ) {
+    if (!canOrder) return;
     if (!isLoggedIn) {
       router.push("/login");
       return;
@@ -134,6 +141,7 @@ export function CatalogPage() {
   return (
     <div className="bg-background flex min-h-screen flex-col">
       <CatalogNavbar onCartClick={() => setCartOpen(true)} />
+      <StoreClosedBanner store={store.data} />
 
       {/* Hero */}
       <section className="border-border border-b">
@@ -242,6 +250,7 @@ export function CatalogPage() {
                       onClick={(p) => setSelectedProductId(p.id)}
                       onAddToCart={handleAddToCart}
                       isAdding={addingId === product.id}
+                      disabled={!canOrder}
                     />
                   ))}
                 </div>
@@ -271,6 +280,7 @@ export function CatalogPage() {
         onClose={() => setSelectedProductId(null)}
         onAddToCart={handleAddFromModal}
         isAdding={addingId === selectedProductId}
+        disabled={!canOrder}
       />
     </div>
   );

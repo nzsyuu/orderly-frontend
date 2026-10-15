@@ -16,7 +16,7 @@ import { useLogout, useSession } from "@/modules/auth/hooks/use-auth";
 
 const navItems = [
   { label: "Painel", icon: LayoutDashboard, href: "/painel" },
-  { label: "Lojas", icon: Store, href: "/lojas" },
+  { label: "Loja", icon: Store, href: "/loja" },
   { label: "Estoque", icon: Boxes, href: "/estoque" },
   { label: "Produtos", icon: Package, href: "/produtos" },
   { label: "Pedidos", icon: ShoppingCart, href: "/painel/pedidos" },

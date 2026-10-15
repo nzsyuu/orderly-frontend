@@ -100,8 +100,8 @@ export function InsightsBriefing({
           </p>
         ) : (
           <p className="text-muted-foreground mt-2 text-sm">
-            O estoque de insumos é compartilhado entre as lojas. A demanda
-            abaixo é do recorte selecionado.
+            A previsão usa o histórico de vendas da loja para o dia
+            selecionado.
           </p>
         )}
       </div>

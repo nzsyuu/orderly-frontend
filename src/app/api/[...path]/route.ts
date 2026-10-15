@@ -11,7 +11,7 @@ const allowedPathPrefixes = [
   "sales",
   "cart",
   "addresses",
-  "stores",
+  "store",
   "insights",
 ] as const;
 

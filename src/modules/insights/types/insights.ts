@@ -78,6 +78,5 @@ export type DailyInsights = {
 };
 
 export type InsightsQuery = {
-  storeId: number | "all";
   date?: string;
 };

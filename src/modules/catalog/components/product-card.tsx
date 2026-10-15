@@ -11,9 +11,11 @@ type ProductCardProps = {
   onClick: (product: Product) => void;
   onAddToCart: (product: Product) => void;
   isAdding?: boolean;
+  /** Loja fechada ou pausada: o botão fica indisponível. */
+  disabled?: boolean;
 };
 
-export function ProductCard({ product, onClick, onAddToCart, isAdding }: ProductCardProps) {
+export function ProductCard({ product, onClick, onAddToCart, isAdding, disabled }: ProductCardProps) {
   return (
     <div className="border-border bg-card group flex flex-col overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md">
       <button 
@@ -56,7 +58,8 @@ export function ProductCard({ product, onClick, onAddToCart, isAdding }: Product
 
           <button
             type="button"
-            disabled={isAdding}
+            disabled={isAdding || disabled}
+            title={disabled ? "A loja não está aceitando pedidos agora" : undefined}
             onClick={() => onAddToCart(product)}
             className={cn(
               "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
@@ -64,7 +67,7 @@ export function ProductCard({ product, onClick, onAddToCart, isAdding }: Product
             )}
           >
             <ShoppingCart className="h-4 w-4" />
-            {isAdding ? "Adicionando..." : "Adicionar"}
+            {isAdding ? "Adicionando..." : disabled ? "Indisponível" : "Adicionar"}
           </button>
         </div>
       </div>

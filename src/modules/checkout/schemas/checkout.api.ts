@@ -12,7 +12,6 @@ const saleItemSchema = z.object({
 const saleResponseSchema = z
   .object({
     saleId: z.string(),
-    storeId: z.coerce.number(),
     date: z.string(),
     status: z.string(),
     totalAmount: z.coerce.number(),
@@ -36,7 +35,6 @@ export function parseSaleResponse(data: unknown): SaleResponse {
   const parsed = saleResponseSchema.parse(data);
   return {
     saleId: parsed.saleId,
-    storeId: parsed.storeId,
     date: parsed.date,
     status: parsed.status as SaleStatus,
     totalAmount: parsed.totalAmount,

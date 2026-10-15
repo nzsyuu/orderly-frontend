@@ -9,9 +9,9 @@ const titles: Record<string, { title: string; subtitle: string }> = {
     title: "Painel",
     subtitle: "Vendas do período e o que fazer hoje na operação",
   },
-  "/lojas": {
-    title: "Lojas",
-    subtitle: "Cadastro, horário de funcionamento e status das unidades",
+  "/loja": {
+    title: "Loja",
+    subtitle: "Horário de funcionamento, limite de pedidos e status",
   },
   "/estoque": {
     title: "Estoque",

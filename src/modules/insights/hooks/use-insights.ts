@@ -3,7 +3,7 @@ import { insightsRepository } from "@/modules/insights/api";
 import type { InsightsQuery } from "@/modules/insights/types/insights";
 
 export function insightsQueryKey(query: InsightsQuery) {
-  return ["insights", query.storeId, query.date ?? ""] as const;
+  return ["insights", query.date ?? ""] as const;
 }
 
 export function useInsights(query: InsightsQuery) {

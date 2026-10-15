@@ -15,7 +15,7 @@ const protectedPaths = [
   "/estoque",
   "/produtos",
   "/painel",
-  "/lojas",
+  "/loja",
   "/conta",
   "/pedidos",
   "/checkout",

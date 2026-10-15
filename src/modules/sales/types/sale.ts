@@ -17,7 +17,6 @@ export type SaleItem = {
 
 export type Sale = {
   saleId: string;
-  storeId: number;
   date: string;
   status: SaleStatus;
   totalAmount: number;
@@ -31,8 +30,6 @@ export type Sale = {
   deliveryCity: string;
   deliveryZipCode: string;
 };
-
-export type StoreFilter = number | "all";
 
 export type TopSoldProduct = {
   productId: number;
@@ -49,13 +46,10 @@ export type SalesKpis = {
 export function aggregateSalesKpis(
   sales: Sale[],
   productNames: Map<number, string>,
-  storeFilter: StoreFilter,
 ): SalesKpis {
-  const confirmed = sales.filter((sale) => {
-    if (!COUNTED_SALE_STATUSES.includes(sale.status)) return false;
-    if (storeFilter === "all") return true;
-    return sale.storeId === storeFilter;
-  });
+  const confirmed = sales.filter((sale) =>
+    COUNTED_SALE_STATUSES.includes(sale.status),
+  );
 
   const quantityByProduct = new Map<number, number>();
   for (const sale of confirmed) {

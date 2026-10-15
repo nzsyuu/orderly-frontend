@@ -85,7 +85,6 @@ export function CheckoutPage() {
       {
         shoppingCartId: cart.data.id,
         addressId: selectedAddress.addressId,
-        storeId: 1,
         observation: observation.trim(),
       },
       {

@@ -11,11 +11,7 @@ export class HttpInsightsRepository implements InsightsRepository {
 
   async get(query: InsightsQuery): Promise<DailyInsights> {
     const params = query.date ? { date: query.date } : undefined;
-    const path =
-      query.storeId === "all"
-        ? "/api/insights"
-        : `/api/stores/${query.storeId}/insights`;
-    const { data } = await this.http.get(path, { params });
+    const { data } = await this.http.get("/api/insights", { params });
     return parseInsights(data);
   }
 }

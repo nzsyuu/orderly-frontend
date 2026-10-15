@@ -10,6 +10,7 @@ import { AddressSelectorModal } from "@/modules/address/components/address-selec
 import { AddressFormModal } from "@/modules/address/components/address-form-modal";
 import type { Address } from "@/modules/address/types/address";
 import { UserMenu } from "@/modules/shell/components/user-menu";
+import { StoreHoursPill } from "@/modules/stores/components/store-hours-pill";
 
 type CatalogNavbarProps = {
   onCartClick: () => void;
@@ -72,6 +73,10 @@ export function CatalogNavbar({ onCartClick }: CatalogNavbarProps) {
                 Orderly
               </span>
             </Link>
+
+            <div className="border-border ml-1 hidden border-l pl-4 sm:block">
+              <StoreHoursPill />
+            </div>
 
             {/* Address indicator (only when logged in) */}
             {isLoggedIn && (
