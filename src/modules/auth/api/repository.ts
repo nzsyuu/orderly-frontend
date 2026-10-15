@@ -10,4 +10,7 @@ export interface AuthRepository {
   verify(token: string): Promise<AuthUser>;
   logout(): Promise<void>;
   getProfile(): Promise<AuthUser>;
+  forgotPassword(email: string): Promise<void>;
+  validateResetToken(token: string): Promise<void>;
+  confirmPasswordReset(token: string, newPassword: string): Promise<void>;
 }

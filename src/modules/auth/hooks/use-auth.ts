@@ -63,3 +63,29 @@ export function useLogout() {
     },
   });
 }
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => authRepository.forgotPassword(email),
+  });
+}
+
+export function useValidateResetToken(token: string | null) {
+  return useQuery({
+    queryKey: ["password-reset", token],
+    queryFn: async () => {
+      await authRepository.validateResetToken(token ?? "");
+      return true;
+    },
+    enabled: !!token,
+    retry: false,
+    staleTime: Infinity,
+  });
+}
+
+export function useConfirmPasswordReset() {
+  return useMutation({
+    mutationFn: (input: { token: string; newPassword: string }) =>
+      authRepository.confirmPasswordReset(input.token, input.newPassword),
+  });
+}

@@ -5,8 +5,17 @@ import { useRouter } from "next/navigation";
 import { Search, ChefHat } from "lucide-react";
 import { useProducts } from "@/modules/products/hooks/use-products";
 import { useSession } from "@/modules/auth/hooks/use-auth";
-import { useAddToCart, useCart, useUpdateCartItem } from "@/modules/cart/hooks/use-cart";
+import {
+  useAddToCart,
+  useCart,
+  useUpdateCartItem,
+} from "@/modules/cart/hooks/use-cart";
 import { CatalogNavbar } from "@/modules/catalog/components/catalog-navbar";
+import {
+  CategoryNav,
+  sectionId,
+} from "@/modules/catalog/components/category-nav";
+import { groupProductsByCategory } from "@/modules/catalog/lib/categories";
 import { ProductCard } from "@/modules/catalog/components/product-card";
 import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { ProductModal } from "@/modules/catalog/components/product-modal";
@@ -29,7 +38,9 @@ export function CatalogPage() {
   const [search, setSearch] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null,
+  );
 
   const activeProducts = (products.data ?? []).filter((p) => p.active);
 
@@ -41,6 +52,8 @@ export function CatalogPage() {
       )
     : activeProducts;
 
+  const groups = groupProductsByCategory(filteredProducts);
+
   function handleAddToCart(product: Product) {
     if (!isLoggedIn) {
       router.push("/login");
@@ -48,11 +61,16 @@ export function CatalogPage() {
     }
 
     setAddingId(product.id);
-    const existingItem = cart.data?.items.find((i) => i.productId === product.id);
+    const existingItem = cart.data?.items.find(
+      (i) => i.productId === product.id,
+    );
 
     if (existingItem) {
       updateCartItem.mutate(
-        { productId: product.id, input: { quantity: existingItem.quantity + 1 } },
+        {
+          productId: product.id,
+          input: { quantity: existingItem.quantity + 1 },
+        },
         {
           onSettled: () => {
             setAddingId(null);
@@ -73,14 +91,20 @@ export function CatalogPage() {
     }
   }
 
-  function handleAddFromModal(productId: number, quantity: number, observation: string) {
+  function handleAddFromModal(
+    productId: number,
+    quantity: number,
+    observation: string,
+  ) {
     if (!isLoggedIn) {
       router.push("/login");
       return;
     }
 
     setAddingId(productId);
-    const existingItem = cart.data?.items.find((i) => i.productId === productId);
+    const existingItem = cart.data?.items.find(
+      (i) => i.productId === productId,
+    );
 
     if (existingItem) {
       updateCartItem.mutate(
@@ -114,7 +138,7 @@ export function CatalogPage() {
       {/* Hero */}
       <section className="border-border border-b">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="mb-3 flex items-center gap-3">
             <div className="bg-accent text-accent-foreground flex h-10 w-10 items-center justify-center rounded-lg">
               <ChefHat className="h-5 w-5" />
             </div>
@@ -123,11 +147,15 @@ export function CatalogPage() {
             </h1>
           </div>
           <p className="text-muted-foreground max-w-lg text-sm sm:text-base">
-            Peça já o seu hambúrguer artesanal e aproveite cada mordida saborosa.
-            Confira nosso cardápio e monte o seu pedido.
+            Peça já o seu hambúrguer artesanal e aproveite cada mordida
+            saborosa. Confira nosso cardápio e monte o seu pedido.
           </p>
         </div>
       </section>
+
+      {products.isSuccess && groups.length > 0 && (
+        <CategoryNav categories={groups.map((g) => g.category)} />
+      )}
 
       {/* Search & Product Grid */}
       <main
@@ -142,7 +170,7 @@ export function CatalogPage() {
               placeholder="Buscar no cardápio..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border-input bg-card focus:border-ring focus:ring-ring/30 h-10 w-full rounded-lg border pl-9 pr-3 text-sm outline-none focus:ring-2"
+              className="border-input bg-card focus:border-ring focus:ring-ring/30 h-10 w-full rounded-lg border pr-3 pl-9 text-sm outline-none focus:ring-2"
             />
           </div>
         </div>
@@ -173,7 +201,9 @@ export function CatalogPage() {
         {/* Error */}
         {products.isError && (
           <div className="flex items-center justify-center py-20">
-            <p className="text-destructive text-sm">Não foi possível carregar o cardápio.</p>
+            <p className="text-destructive text-sm">
+              Não foi possível carregar o cardápio.
+            </p>
           </div>
         )}
 
@@ -188,17 +218,34 @@ export function CatalogPage() {
           </div>
         )}
 
-        {/* Product Grid */}
-        {products.isSuccess && filteredProducts.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={(p) => setSelectedProductId(p.id)}
-                onAddToCart={handleAddToCart}
-                isAdding={addingId === product.id}
-              />
+        {/* Product sections by category */}
+        {products.isSuccess && groups.length > 0 && (
+          <div className="flex flex-col gap-10">
+            {groups.map(({ category, products: items }) => (
+              <section
+                key={category.id}
+                id={sectionId(category.id)}
+                aria-labelledby={`${sectionId(category.id)}-title`}
+                className="scroll-mt-36"
+              >
+                <h2
+                  id={`${sectionId(category.id)}-title`}
+                  className="font-display text-foreground mb-4 text-xl font-bold tracking-tight"
+                >
+                  {category.label}
+                </h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={(p) => setSelectedProductId(p.id)}
+                      onAddToCart={handleAddToCart}
+                      isAdding={addingId === product.id}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         )}
@@ -208,7 +255,8 @@ export function CatalogPage() {
       <footer className="border-border border-t">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
           <p className="text-muted-foreground text-center text-xs">
-            © {new Date().getFullYear()} Orderly Burgueria — Feito com ❤ para você.
+            © {new Date().getFullYear()} Orderly Burgueria — Feito com ❤ para
+            você.
           </p>
         </div>
       </footer>
@@ -216,9 +264,9 @@ export function CatalogPage() {
       {isLoggedIn && <ActiveOrderBanner />}
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      
-      <ProductModal 
-        key={selectedProductId || 'modal'}
+
+      <ProductModal
+        key={selectedProductId || "modal"}
         productId={selectedProductId}
         onClose={() => setSelectedProductId(null)}
         onAddToCart={handleAddFromModal}

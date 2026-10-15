@@ -43,4 +43,24 @@ export class HttpAuthRepository implements AuthRepository {
     const { data } = await this.http.get("/api/profile");
     return parseAuthUser(data);
   }
+
+  async forgotPassword(email: string): Promise<void> {
+    await this.http.post("/api/auth/forgot-password", { email });
+  }
+
+  async validateResetToken(token: string): Promise<void> {
+    await this.http.get("/api/auth/password-reset/validate", {
+      params: { token },
+    });
+  }
+
+  async confirmPasswordReset(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
+    await this.http.post("/api/auth/password-reset/confirm", {
+      token,
+      newPassword,
+    });
+  }
 }

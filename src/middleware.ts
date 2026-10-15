@@ -2,7 +2,14 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const AUTH_COOKIE = "token";
 
-const publicPaths = ["/login", "/cadastro", "/verificar", "/cardapio"];
+const publicPaths = [
+  "/login",
+  "/cadastro",
+  "/verificar",
+  "/forgot-password",
+  "/password-reset",
+  "/cardapio",
+];
 
 const protectedPaths = [
   "/estoque",

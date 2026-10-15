@@ -26,11 +26,18 @@ apiClient.interceptors.response.use(
       url.includes("/api/auth/login") ||
       url.includes("/api/auth/register") ||
       url.includes("/api/auth/verify") ||
+      url.includes("/api/auth/forgot-password") ||
+      url.includes("/api/auth/password-reset") ||
       url.includes("/api/profile");
-      
-    const isPublicPage = ["/login", "/cadastro", "/verificar", "/cardapio"].some((path) =>
-      window.location.pathname.startsWith(path),
-    );
+
+    const isPublicPage = [
+      "/login",
+      "/cadastro",
+      "/verificar",
+      "/forgot-password",
+      "/password-reset",
+      "/cardapio",
+    ].some((path) => window.location.pathname.startsWith(path));
 
     if (status === 401 && !isPublicAuth && !isPublicPage) {
       notifyUnauthorized();

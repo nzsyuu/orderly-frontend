@@ -46,3 +46,24 @@ export const verifyFormSchema = z.object({
 });
 
 export type VerifyFormValues = z.infer<typeof verifyFormSchema>;
+
+export const forgotPasswordFormSchema = z.object({
+  email: z.email("Informe um e-mail válido"),
+});
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
+
+export const resetPasswordFormSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, "A senha deve ter pelo menos 8 caracteres")
+      .max(20, "A senha deve ter no máximo 20 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;

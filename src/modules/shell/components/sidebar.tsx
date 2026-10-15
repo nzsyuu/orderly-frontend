@@ -7,7 +7,6 @@ import {
   Package,
   ShoppingCart,
   Boxes,
-  Users,
   Settings,
   ChefHat,
   LogOut,
@@ -21,7 +20,6 @@ const navItems = [
   { label: "Estoque", icon: Boxes, href: "/estoque" },
   { label: "Produtos", icon: Package, href: "/produtos" },
   { label: "Pedidos", icon: ShoppingCart, href: "/painel/pedidos" },
-  { label: "Fornecedores", icon: Users, href: null },
 ] as const;
 
 function initials(name: string) {
@@ -55,25 +53,12 @@ export function Sidebar() {
           Menu
         </p>
         {navItems.map((item) => {
-          const isActive = item.href !== null && pathname === item.href;
-          const className = `flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors ${
+          const isActive = pathname === item.href;
+          const className = `flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
             isActive
               ? "bg-sidebar-primary text-sidebar-primary-foreground"
               : "text-sidebar-foreground/70"
-          } ${
-            item.href
-              ? "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              : "cursor-not-allowed opacity-50"
           }`;
-
-          if (!item.href) {
-            return (
-              <span key={item.label} aria-disabled="true" className={className}>
-                <item.icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </span>
-            );
-          }
 
           return (
             <Link
@@ -90,13 +75,18 @@ export function Sidebar() {
       </nav>
 
       <div className="border-sidebar-border border-t p-3">
-        <span
-          aria-disabled="true"
-          className="text-sidebar-foreground/70 flex cursor-not-allowed items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium opacity-50"
+        <Link
+          href="/conta"
+          aria-current={pathname === "/conta" ? "page" : undefined}
+          className={`mb-1 flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors ${
+            pathname === "/conta"
+              ? "bg-sidebar-primary text-sidebar-primary-foreground"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          }`}
         >
           <Settings className="h-[18px] w-[18px]" />
           Configurações
-        </span>
+        </Link>
         <button
           type="button"
           onClick={() => logout.mutate()}

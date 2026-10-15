@@ -91,6 +91,13 @@ export function LoginForm() {
           )}
         </label>
 
+        <Link
+          href="/forgot-password"
+          className="text-primary -mt-2 self-end text-sm font-medium hover:underline"
+        >
+          Esqueci minha senha
+        </Link>
+
         {errorMessage && (
           <div className="flex flex-col gap-1">
             <p className="text-destructive text-sm">{errorMessage}</p>
