@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSession } from "@/modules/auth/hooks/use-auth";
+import { getHomeRouteByRole } from "@/modules/auth/types/user";
 import { AuthPage } from "@/modules/auth/components/auth-page";
 import { LoginForm } from "@/modules/auth/components/login-form";
 
@@ -12,7 +13,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session.data) {
-      router.replace("/cardapio");
+      router.replace(getHomeRouteByRole(session.data.role));
     }
   }, [router, session.data]);
 

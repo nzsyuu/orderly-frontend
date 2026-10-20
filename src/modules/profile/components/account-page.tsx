@@ -4,6 +4,7 @@ import { useState } from "react";
 import { KeyRound, MapPin, ShieldAlert, UserRound } from "lucide-react";
 import { AuthGate } from "@/modules/auth/components/auth-gate";
 import { useSession } from "@/modules/auth/hooks/use-auth";
+import { getHomeRouteByRole } from "@/modules/auth/types/user";
 import { AddressesSection } from "@/modules/profile/components/addresses-section";
 import { ChangePasswordForm } from "@/modules/profile/components/change-password-form";
 import { DeleteAccountDialog } from "@/modules/profile/components/delete-account-dialog";
@@ -58,8 +59,12 @@ function Account() {
     <div className="bg-background flex min-h-screen flex-col">
       <CustomerHeader
         title="Minha conta"
-        backHref="/cardapio"
-        backLabel="Voltar ao cardápio"
+        backHref={getHomeRouteByRole(user.role)}
+        backLabel={
+          user.role === "ROLE_ADMIN"
+            ? "Voltar ao painel"
+            : "Voltar ao cardápio"
+        }
       />
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">

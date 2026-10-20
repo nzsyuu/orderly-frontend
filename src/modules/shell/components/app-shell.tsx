@@ -4,7 +4,7 @@ import { Topbar } from "@/modules/shell/components/topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <AuthGate>
+    <AuthGate requiredRole="ROLE_ADMIN">
       <div className="bg-background flex min-h-screen">
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">

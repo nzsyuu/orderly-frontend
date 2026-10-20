@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { LoginInput, RegisterInput } from "@/modules/auth/types/user";
+import {
+  getHomeRouteByRole,
+  type LoginInput,
+  type RegisterInput,
+} from "@/modules/auth/types/user";
 import { authRepository } from "@/modules/auth/api";
 
 export const sessionQueryKey = ["session"] as const;
@@ -22,7 +26,7 @@ export function useLogin() {
     mutationFn: (input: LoginInput) => authRepository.login(input),
     onSuccess: (user) => {
       queryClient.setQueryData(sessionQueryKey, user);
-      router.replace("/cardapio");
+      router.replace(getHomeRouteByRole(user.role));
     },
   });
 }
@@ -46,7 +50,7 @@ export function useVerifyAccount() {
     mutationFn: (token: string) => authRepository.verify(token),
     onSuccess: (user) => {
       queryClient.setQueryData(sessionQueryKey, user);
-      router.replace("/cardapio");
+      router.replace(getHomeRouteByRole(user.role));
     },
   });
 }
