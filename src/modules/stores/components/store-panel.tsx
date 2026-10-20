@@ -3,73 +3,90 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MapPin } from "lucide-react";
+import { Clock, MapPin, RotateCcw, Store as StoreIcon } from "lucide-react";
+import { StoreStatusBadge } from "@/modules/stores/components/store-status-badge";
 import {
   useClearStoreManualStatus,
   useSetStoreStatus,
   useStore,
   useUpdateStoreSettings,
 } from "@/modules/stores/hooks/use-stores";
-import { StoreStatusBadge } from "@/modules/stores/components/store-status-badge";
-import {
-  storeSettingsFormSchema,
-  type StoreSettingsFormValues,
-} from "@/modules/stores/schemas/store-form";
 import {
   formatStoreHours,
   toApiTime,
   toTimeInputValue,
 } from "@/modules/stores/lib/time";
+import {
+  storeSettingsFormSchema,
+  type StoreSettingsFormValues,
+} from "@/modules/stores/schemas/store-form";
 import type { Store, StoreStatus } from "@/modules/stores/types/store";
 import { getApiErrorMessage } from "@/shared/http/api-error";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
 import { fieldClassName } from "@/shared/ui/modal";
+import { EmptyState, PageHeader, Panel } from "@/shared/ui/page";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-const statusActions: { status: StoreStatus; label: string }[] = [
-  { status: "ABERTA", label: "Abrir" },
-  { status: "PAUSADA", label: "Pausar" },
-  { status: "FECHADA", label: "Fechar" },
+const statusActions: {
+  status: StoreStatus;
+  label: string;
+  helper: string;
+}[] = [
+  {
+    status: "ABERTA",
+    label: "Abrir",
+    helper: "Recebendo pedidos",
+  },
+  {
+    status: "PAUSADA",
+    label: "Pausar",
+    helper: "Segura novos pedidos",
+  },
+  {
+    status: "FECHADA",
+    label: "Fechar",
+    helper: "Encerra o atendimento",
+  },
 ];
 
 export function StorePanel() {
   const query = useStore();
 
-  if (query.isPending) {
-    return (
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <Skeleton className="h-72 rounded-md" />
-        <Skeleton className="h-72 rounded-md" />
-      </div>
-    );
-  }
-
-  if (query.isError) {
-    return (
-      <div className="border-border bg-card flex flex-col items-center gap-1 rounded-md border py-16 text-center">
-        <p className="text-foreground font-medium">
-          Não foi possível carregar a loja
-        </p>
-        <p className="text-muted-foreground text-sm">
-          {getApiErrorMessage(query.error, "Tente novamente em instantes.")}
-        </p>
-        <Button
-          className="mt-3"
-          variant="outline"
-          onClick={() => query.refetch()}
-        >
-          Tentar de novo
-        </Button>
-      </div>
-    );
-  }
-
-  const store = query.data;
-
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <StatusCard store={store} />
-      <SettingsCard store={store} />
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Operação da loja"
+        description="Defina o horário de atendimento, a capacidade da cozinha e o status em tempo real do cardápio."
+      />
+
+      {query.isPending ? (
+        <div className="grid gap-6 lg:grid-cols-12">
+          <Skeleton className="h-80 rounded-2xl lg:col-span-5" />
+          <Skeleton className="h-80 rounded-2xl lg:col-span-7" />
+        </div>
+      ) : query.isError ? (
+        <Panel>
+          <EmptyState
+            icon={StoreIcon}
+            title="Não foi possível carregar a loja"
+            description={getApiErrorMessage(
+              query.error,
+              "Tente novamente em instantes.",
+            )}
+            action={
+              <Button variant="outline" onClick={() => query.refetch()}>
+                Tentar de novo
+              </Button>
+            }
+          />
+        </Panel>
+      ) : (
+        <div className="grid items-start gap-6 lg:grid-cols-12">
+          <StatusCard store={query.data} />
+          <SettingsCard store={query.data} />
+        </div>
+      )}
     </div>
   );
 }
@@ -81,61 +98,92 @@ function StatusCard({ store }: { store: Store }) {
   const busy = setStatus.isPending || clearManual.isPending;
 
   return (
-    <section className="border-border bg-card flex flex-col gap-5 rounded-md border p-5">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-display text-foreground text-2xl leading-tight font-bold tracking-tight">
-          {store.name}
-        </h2>
-        <p className="text-muted-foreground flex items-start gap-1.5 text-sm">
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-          <span>
-            {store.addressStreet}, {store.addressNumber}.{" "}
-            {store.addressNeighborhood}, {store.addressCity}. CEP{" "}
-            {store.addressZipCode}
-          </span>
-        </p>
-      </div>
-
-      <div className="border-border flex items-center justify-between gap-3 border-y py-4">
-        <div>
-          <p className="text-muted-foreground text-xs">Agora</p>
-          <p className="text-foreground text-sm font-medium">
-            {formatStoreHours(store.openingTime, store.closingTime)}
+    <section className="border-border bg-card flex flex-col gap-5 rounded-2xl border p-5 sm:p-6 lg:col-span-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-condensed text-foreground text-2xl leading-tight font-extrabold">
+            {store.name}
+          </h2>
+          <p className="text-muted-foreground mt-1.5 flex items-start gap-1.5 text-xs leading-relaxed">
+            <MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+            <span>
+              {store.addressStreet}, {store.addressNumber} ·{" "}
+              {store.addressNeighborhood}, {store.addressCity} · CEP{" "}
+              {store.addressZipCode}
+            </span>
           </p>
         </div>
         <StoreStatusBadge store={store} />
       </div>
 
+      <div className="border-border bg-muted/50 flex items-center justify-between gap-3 rounded-xl border px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <Clock className="text-muted-foreground size-4" aria-hidden />
+          <div>
+            <p className="text-muted-foreground text-[11px]">
+              Horário programado
+            </p>
+            <p className="text-foreground tabular text-sm font-semibold">
+              {formatStoreHours(store.openingTime, store.closingTime)}
+            </p>
+          </div>
+        </div>
+        <span className="text-muted-foreground text-xs font-medium">
+          {isManual ? "Modo manual" : "Modo automático"}
+        </span>
+      </div>
+
       <div className="flex flex-col gap-3">
         <p className="text-muted-foreground text-sm">
           {isManual
-            ? "Você definiu o status manualmente. Horário e fila de pedidos não o alteram até você voltar ao automático."
-            : "O status segue o horário e a fila de pedidos pendentes. O servidor recalcula a cada minuto."}{" "}
-          Pedidos só são aceitos quando a loja está aberta.
+            ? "Você fixou o status manualmente. O horário e a fila não o alteram até você voltar ao modo automático."
+            : "O status acompanha o horário e a fila da cozinha automaticamente a cada minuto."}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {statusActions.map((action) => (
-            <Button
-              key={action.status}
-              type="button"
-              variant="outline"
-              disabled={busy || store.manualStatus === action.status}
-              className="bg-transparent"
-              onClick={() => setStatus.mutate(action.status)}
-            >
-              {action.label}
-            </Button>
-          ))}
-          {isManual ? (
-            <Button
-              type="button"
-              disabled={busy}
-              onClick={() => clearManual.mutate()}
-            >
-              {clearManual.isPending ? "Voltando..." : "Voltar ao automático"}
-            </Button>
-          ) : null}
+
+        <div className="grid grid-cols-3 gap-2">
+          {statusActions.map((action) => {
+            const isSelected = store.manualStatus === action.status;
+            return (
+              <button
+                key={action.status}
+                type="button"
+                disabled={busy || isSelected}
+                onClick={() => setStatus.mutate(action.status)}
+                className={cn(
+                  "flex flex-col items-start rounded-xl border p-3 text-left transition-colors disabled:opacity-60",
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-card hover:bg-muted text-foreground",
+                )}
+              >
+                <span className="text-sm font-bold">{action.label}</span>
+                <span
+                  className={cn(
+                    "mt-0.5 text-[11px]",
+                    isSelected
+                      ? "text-primary-foreground/75"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {action.helper}
+                </span>
+              </button>
+            );
+          })}
         </div>
+
+        {isManual ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={busy}
+            onClick={() => clearManual.mutate()}
+          >
+            <RotateCcw className="size-4" />
+            {clearManual.isPending ? "Voltando..." : "Voltar ao automático"}
+          </Button>
+        ) : null}
+
         {setStatus.isError ? (
           <p className="text-destructive text-sm" role="alert">
             {getApiErrorMessage(
@@ -184,16 +232,13 @@ function SettingsCard({ store }: { store: Store }) {
   }, [store, reset]);
 
   return (
-    <section className="border-border bg-card rounded-md border p-5">
-      <h2 className="font-display text-foreground text-lg font-bold tracking-tight">
-        Funcionamento
-      </h2>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Horário de atendimento e quantos pedidos a cozinha aguenta ao mesmo
-        tempo.
-      </p>
+    <Panel
+      title="Regras de funcionamento"
+      description="Defina quando a loja abre e quantos pedidos simultâneos a cozinha comporta."
+      className="lg:col-span-7"
+    >
       <form
-        className="mt-5 flex flex-col gap-4"
+        className="flex flex-col gap-4"
         onSubmit={handleSubmit(async (values) => {
           try {
             await updateSettings.mutateAsync({
@@ -240,7 +285,7 @@ function SettingsCard({ store }: { store: Store }) {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-foreground text-sm font-medium">
-            Pedidos em andamento ao mesmo tempo
+            Limite de pedidos simultâneos na cozinha
           </span>
           <input
             type="number"
@@ -256,15 +301,21 @@ function SettingsCard({ store }: { store: Store }) {
           ) : null}
         </label>
 
-        <label className="flex items-center gap-2">
+        <label className="border-border bg-muted/40 flex cursor-pointer items-center gap-3 rounded-xl border p-3.5">
           <input
             type="checkbox"
             {...register("automaticPause")}
-            className="size-4"
+            className="size-4 shrink-0"
           />
-          <span className="text-foreground text-sm">
-            Pausar a loja quando atingir esse limite
-          </span>
+          <div>
+            <span className="text-foreground block text-sm font-semibold">
+              Pausa automática de segurança
+            </span>
+            <span className="text-muted-foreground block text-xs">
+              Pausa novos pedidos no cardápio assim que a fila atingir o limite
+              acima.
+            </span>
+          </div>
         </label>
 
         {updateSettings.isError ? (
@@ -276,17 +327,17 @@ function SettingsCard({ store }: { store: Store }) {
           </p>
         ) : null}
         {updateSettings.isSuccess && !isDirty ? (
-          <p className="text-success text-sm" role="status">
+          <p className="text-success text-sm font-medium" role="status">
             Funcionamento salvo.
           </p>
         ) : null}
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1">
           <Button type="submit" disabled={updateSettings.isPending || !isDirty}>
             {updateSettings.isPending ? "Salvando..." : "Salvar funcionamento"}
           </Button>
         </div>
       </form>
-    </section>
+    </Panel>
   );
 }

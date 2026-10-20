@@ -5,12 +5,5 @@ type SkeletonProps = {
 };
 
 export function Skeleton({ className }: SkeletonProps) {
-  return (
-    <div
-      className={cn(
-        "bg-muted animate-pulse rounded-md",
-        className,
-      )}
-    />
-  );
+  return <div className={cn("bg-muted animate-pulse rounded-md", className)} />;
 }

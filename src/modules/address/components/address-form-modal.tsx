@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Modal, fieldClassName } from "@/shared/ui/modal";
-import { useLookupCep, useCreateAddress, useUpdateAddress } from "@/modules/address/hooks/use-address";
+import {
+  useLookupCep,
+  useCreateAddress,
+  useUpdateAddress,
+} from "@/modules/address/hooks/use-address";
 import { getApiErrorMessage } from "@/shared/http/api-error";
-import type { Address, CreateAddressInput } from "@/modules/address/types/address";
+import type {
+  Address,
+  CreateAddressInput,
+} from "@/modules/address/types/address";
 
 type AddressFormModalProps = {
   open: boolean;
@@ -54,7 +61,9 @@ export function AddressFormModal({
   editingAddress,
 }: AddressFormModalProps) {
   // State is initialized from props. Parent should use a key to reset when needed.
-  const [form, setForm] = useState<CreateAddressInput>(() => buildInitialForm(editingAddress));
+  const [form, setForm] = useState<CreateAddressInput>(() =>
+    buildInitialForm(editingAddress),
+  );
   const [error, setError] = useState("");
   const lookupCep = useLookupCep();
   const createAddress = useCreateAddress();
@@ -92,7 +101,15 @@ export function AddressFormModal({
     e.preventDefault();
     setError("");
 
-    if (!form.name.trim() || !form.street.trim() || !form.number.trim() || !form.neighborhood.trim() || !form.city.trim() || !form.state.trim() || !form.zipCode.trim()) {
+    if (
+      !form.name.trim() ||
+      !form.street.trim() ||
+      !form.number.trim() ||
+      !form.neighborhood.trim() ||
+      !form.city.trim() ||
+      !form.state.trim() ||
+      !form.zipCode.trim()
+    ) {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -111,7 +128,9 @@ export function AddressFormModal({
       neighborhood: form.neighborhood.trim(),
       city: form.city.trim(),
       state: form.state.trim(),
-      zipCode: form.zipCode.replace(/\D/g, "").replace(/^(\d{5})(\d{3})$/, "$1-$2"),
+      zipCode: form.zipCode
+        .replace(/\D/g, "")
+        .replace(/^(\d{5})(\d{3})$/, "$1-$2"),
     };
 
     if (isEditing && editingAddress) {
@@ -146,11 +165,15 @@ export function AddressFormModal({
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
         {/* Warning Message */}
         <div className="bg-warning/15 text-warning-foreground mb-1 rounded-md p-3 text-sm">
-          <strong>Aviso:</strong> No momento, realizamos entregas apenas para a cidade de <strong>Natal</strong>.
+          <strong>Aviso:</strong> No momento, realizamos entregas apenas para a
+          cidade de <strong>Natal</strong>.
         </div>
         {/* Name (label for the address) */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="addr-name" className="text-foreground text-xs font-medium">
+          <label
+            htmlFor="addr-name"
+            className="text-foreground text-xs font-medium"
+          >
             Apelido *
           </label>
           <input
@@ -165,7 +188,10 @@ export function AddressFormModal({
 
         {/* CEP */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="addr-cep" className="text-foreground text-xs font-medium">
+          <label
+            htmlFor="addr-cep"
+            className="text-foreground text-xs font-medium"
+          >
             CEP *
           </label>
           <div className="relative">
@@ -190,7 +216,10 @@ export function AddressFormModal({
         {/* Street + Number */}
         <div className="grid grid-cols-[1fr_100px] gap-2">
           <div className="flex flex-col gap-1">
-            <label htmlFor="addr-street" className="text-foreground text-xs font-medium">
+            <label
+              htmlFor="addr-street"
+              className="text-foreground text-xs font-medium"
+            >
               Rua *
             </label>
             <input
@@ -203,7 +232,10 @@ export function AddressFormModal({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="addr-number" className="text-foreground text-xs font-medium">
+            <label
+              htmlFor="addr-number"
+              className="text-foreground text-xs font-medium"
+            >
               Nº *
             </label>
             <input
@@ -219,7 +251,10 @@ export function AddressFormModal({
 
         {/* Complement */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="addr-complement" className="text-foreground text-xs font-medium">
+          <label
+            htmlFor="addr-complement"
+            className="text-foreground text-xs font-medium"
+          >
             Complemento
           </label>
           <input
@@ -234,7 +269,10 @@ export function AddressFormModal({
 
         {/* Neighborhood */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="addr-neighborhood" className="text-foreground text-xs font-medium">
+          <label
+            htmlFor="addr-neighborhood"
+            className="text-foreground text-xs font-medium"
+          >
             Bairro *
           </label>
           <input
@@ -250,7 +288,10 @@ export function AddressFormModal({
         {/* City + State */}
         <div className="grid grid-cols-[1fr_80px] gap-2">
           <div className="flex flex-col gap-1">
-            <label htmlFor="addr-city" className="text-foreground text-xs font-medium">
+            <label
+              htmlFor="addr-city"
+              className="text-foreground text-xs font-medium"
+            >
               Cidade *
             </label>
             <input
@@ -263,7 +304,10 @@ export function AddressFormModal({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="addr-state" className="text-foreground text-xs font-medium">
+            <label
+              htmlFor="addr-state"
+              className="text-foreground text-xs font-medium"
+            >
               UF *
             </label>
             <input
@@ -280,7 +324,7 @@ export function AddressFormModal({
 
         {/* Error */}
         {error && (
-          <p className="text-destructive rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium">
+          <p className="text-destructive bg-destructive/10 rounded-lg px-3 py-2 text-xs font-medium">
             {error}
           </p>
         )}

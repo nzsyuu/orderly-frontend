@@ -4,7 +4,10 @@ import type { SalesListFilters } from "@/modules/sales/api/repository";
 
 export const salesQueryKey = ["sales"] as const;
 
-export function useSales(filters?: SalesListFilters, queryOptions?: { refetchInterval?: number }) {
+export function useSales(
+  filters?: SalesListFilters,
+  queryOptions?: { refetchInterval?: number },
+) {
   return useQuery({
     queryKey: [...salesQueryKey, filters],
     queryFn: () => salesRepository.list(filters),

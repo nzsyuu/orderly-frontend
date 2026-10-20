@@ -14,15 +14,42 @@ export const saleListItemSchema = z
     date: z.string(),
     status: z.string(),
     totalAmount: z.coerce.number(),
-    observation: z.string().nullish().transform(v => v ?? undefined),
-    items: z.array(saleItemSchema).nullish().transform(v => v ?? []),
-    userId: z.string().nullish().transform(v => v ?? ""),
-    deliveryFee: z.coerce.number().nullish().transform(v => v ?? 0),
-    deliveryStreet: z.string().nullish().transform(v => v ?? ""),
-    deliveryNumber: z.string().nullish().transform(v => v ?? ""),
-    deliveryNeighborhood: z.string().nullish().transform(v => v ?? ""),
-    deliveryCity: z.string().nullish().transform(v => v ?? ""),
-    deliveryZipCode: z.string().nullish().transform(v => v ?? ""),
+    observation: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? undefined),
+    items: z
+      .array(saleItemSchema)
+      .nullish()
+      .transform((v) => v ?? []),
+    userId: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
+    deliveryFee: z.coerce
+      .number()
+      .nullish()
+      .transform((v) => v ?? 0),
+    deliveryStreet: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
+    deliveryNumber: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
+    deliveryNeighborhood: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
+    deliveryCity: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
+    deliveryZipCode: z
+      .string()
+      .nullish()
+      .transform((v) => v ?? ""),
   })
   .passthrough();
 

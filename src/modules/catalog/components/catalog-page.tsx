@@ -2,28 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ChefHat } from "lucide-react";
-import { useProducts } from "@/modules/products/hooks/use-products";
+import { Search, UtensilsCrossed } from "lucide-react";
 import { useSession } from "@/modules/auth/hooks/use-auth";
 import {
   useAddToCart,
   useCart,
   useUpdateCartItem,
 } from "@/modules/cart/hooks/use-cart";
+import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { CatalogNavbar } from "@/modules/catalog/components/catalog-navbar";
 import {
   CategoryNav,
   sectionId,
 } from "@/modules/catalog/components/category-nav";
-import { groupProductsByCategory } from "@/modules/catalog/lib/categories";
 import { ProductCard } from "@/modules/catalog/components/product-card";
-import { CartDrawer } from "@/modules/catalog/components/cart-drawer";
 import { ProductModal } from "@/modules/catalog/components/product-modal";
-import { StoreClosedBanner } from "@/modules/stores/components/store-closed-banner";
-import { useStore } from "@/modules/stores/hooks/use-stores";
+import { groupProductsByCategory } from "@/modules/catalog/lib/categories";
 import { ActiveOrderBanner } from "@/modules/orders/components/active-order-banner";
 import { useActiveOrders } from "@/modules/orders/hooks/use-orders";
+import { useProducts } from "@/modules/products/hooks/use-products";
 import type { Product } from "@/modules/products/types/product";
+import { StoreClosedBanner } from "@/modules/stores/components/store-closed-banner";
+import { useStore } from "@/modules/stores/hooks/use-stores";
+import { EmptyState } from "@/shared/ui/page";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 export function CatalogPage() {
@@ -32,7 +33,6 @@ export function CatalogPage() {
   const isLoggedIn = !!session.data;
   const products = useProducts();
   const store = useStore();
-  // Enquanto o status não carrega (ou falha), não bloqueia: o backend valida no checkout.
   const canOrder = !store.data || store.data.status === "ABERTA";
   const addToCart = useAddToCart();
   const updateCartItem = useUpdateCartItem();
@@ -143,21 +143,31 @@ export function CatalogPage() {
       <CatalogNavbar onCartClick={() => setCartOpen(true)} />
       <StoreClosedBanner store={store.data} />
 
-      {/* Hero */}
-      <section className="border-border border-b">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="bg-accent text-accent-foreground flex h-10 w-10 items-center justify-center rounded-lg">
-              <ChefHat className="h-5 w-5" />
-            </div>
-            <h1 className="font-display text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
-              Bem-vindo à Orderly!
+      {/* Letreiro de abertura com busca integrada */}
+      <section className="bg-sidebar text-sidebar-foreground border-sidebar-border border-b">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-11 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-xl">
+            <h1 className="font-condensed text-sidebar-foreground text-3xl leading-[1.02] font-extrabold sm:text-5xl">
+              Da chapa quente direto para a sua porta.
             </h1>
+            <p className="text-sidebar-foreground/75 mt-2.5 text-sm sm:text-base">
+              Hambúrgueres artesanais, batatas crocantes e shakes batidos na
+              hora. Escolha seus favoritos e acompanhe o preparo ao vivo.
+            </p>
           </div>
-          <p className="text-muted-foreground max-w-lg text-sm sm:text-base">
-            Peça já o seu hambúrguer artesanal e aproveite cada mordida
-            saborosa. Confira nosso cardápio e monte o seu pedido.
-          </p>
+
+          <div className="w-full max-w-sm">
+            <div className="relative">
+              <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Buscar lanche ou ingrediente..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-card text-foreground placeholder:text-muted-foreground focus:ring-brand/40 h-11 w-full rounded-xl pr-3 pl-10 text-sm outline-none focus:ring-4"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -165,40 +175,25 @@ export function CatalogPage() {
         <CategoryNav categories={groups.map((g) => g.category)} />
       )}
 
-      {/* Search & Product Grid */}
+      {/* Grade do cardápio */}
       <main
         className={`mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 ${hasActiveOrders ? "pb-24" : ""}`}
       >
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-sm">
-            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Buscar no cardápio..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border-input bg-card focus:border-ring focus:ring-ring/30 h-10 w-full rounded-lg border pr-3 pl-9 text-sm outline-none focus:ring-2"
-            />
-          </div>
-        </div>
-
-        {/* Loading skeletons */}
         {products.isPending && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="border-border bg-card flex flex-col overflow-hidden rounded-lg border"
+                className="border-border bg-card flex flex-col overflow-hidden rounded-2xl border"
               >
                 <Skeleton className="aspect-[4/3] w-full rounded-none" />
-                <div className="flex flex-1 flex-col p-4">
-                  <Skeleton className="h-5 w-3/4" />
+                <div className="flex flex-1 flex-col p-5">
+                  <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="mt-2 h-4 w-full" />
                   <Skeleton className="mt-1 h-4 w-2/3" />
-                  <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-                    <Skeleton className="h-6 w-20" />
-                    <Skeleton className="h-9 w-28 rounded-lg" />
+                  <div className="mt-auto flex items-end justify-between gap-2 pt-4">
+                    <Skeleton className="h-7 w-24" />
+                    <Skeleton className="h-10 w-28 rounded-xl" />
                   </div>
                 </div>
               </div>
@@ -206,27 +201,30 @@ export function CatalogPage() {
           </div>
         )}
 
-        {/* Error */}
         {products.isError && (
-          <div className="flex items-center justify-center py-20">
-            <p className="text-destructive text-sm">
-              Não foi possível carregar o cardápio.
-            </p>
-          </div>
+          <EmptyState
+            icon={UtensilsCrossed}
+            title="Não foi possível carregar o cardápio"
+            description="Verifique a conexão e atualize a página."
+          />
         )}
 
-        {/* Empty state */}
         {products.isSuccess && filteredProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-muted-foreground text-sm font-medium">
-              {search.trim()
-                ? "Nenhum produto encontrado para sua busca."
-                : "Nenhum produto disponível no momento."}
-            </p>
-          </div>
+          <EmptyState
+            icon={UtensilsCrossed}
+            title={
+              search.trim()
+                ? "Nenhum item encontrado para sua busca"
+                : "Cardápio indisponível no momento"
+            }
+            description={
+              search.trim()
+                ? "Tente buscar por outro nome ou ingrediente."
+                : "Volte em instantes para conferir nossas opções."
+            }
+          />
         )}
 
-        {/* Product sections by category */}
         {products.isSuccess && groups.length > 0 && (
           <div className="flex flex-col gap-10">
             {groups.map(({ category, products: items }) => (
@@ -236,13 +234,18 @@ export function CatalogPage() {
                 aria-labelledby={`${sectionId(category.id)}-title`}
                 className="scroll-mt-36"
               >
-                <h2
-                  id={`${sectionId(category.id)}-title`}
-                  className="font-display text-foreground mb-4 text-xl font-bold tracking-tight"
-                >
-                  {category.label}
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="border-border mb-4 flex items-baseline justify-between border-b pb-2">
+                  <h2
+                    id={`${sectionId(category.id)}-title`}
+                    className="font-condensed text-foreground text-2xl font-extrabold sm:text-3xl"
+                  >
+                    {category.label}
+                  </h2>
+                  <span className="text-muted-foreground tabular text-xs font-medium">
+                    {items.length} {items.length === 1 ? "opção" : "opções"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {items.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -260,13 +263,12 @@ export function CatalogPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-border border-t">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-          <p className="text-muted-foreground text-center text-xs">
-            © {new Date().getFullYear()} Orderly Burgueria — Feito com ❤ para
-            você.
-          </p>
+      <footer className="border-border bg-card border-t">
+        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-xs sm:flex-row sm:px-6">
+          <span>
+            © {new Date().getFullYear()} {store.data?.name ?? "Orderly"}
+          </span>
+          <span>Preços e disponibilidade sujeitos ao estoque do turno.</span>
         </div>
       </footer>
 

@@ -12,9 +12,12 @@ export function getInitials(name: string) {
   return (first + last).toUpperCase();
 }
 
-export function UserAvatar({ name, size = "sm", className = "" }: UserAvatarProps) {
-  const sizeClassName =
-    size === "lg" ? "h-16 w-16 text-xl" : "h-9 w-9 text-xs";
+export function UserAvatar({
+  name,
+  size = "sm",
+  className = "",
+}: UserAvatarProps) {
+  const sizeClassName = size === "lg" ? "h-16 w-16 text-xl" : "h-9 w-9 text-xs";
 
   return (
     <span

@@ -43,7 +43,9 @@ export function ProfileNameForm({ user }: { user: AuthUser }) {
           className={fieldClassName}
         />
         {errors.name && (
-          <span className="text-destructive text-xs">{errors.name.message}</span>
+          <span className="text-destructive text-xs">
+            {errors.name.message}
+          </span>
         )}
       </label>
 
@@ -63,7 +65,10 @@ export function ProfileNameForm({ user }: { user: AuthUser }) {
 
       {updateName.isError && (
         <p className="text-destructive bg-destructive/10 rounded-lg px-3 py-2 text-xs font-medium">
-          {getApiErrorMessage(updateName.error, "Não foi possível salvar o nome.")}
+          {getApiErrorMessage(
+            updateName.error,
+            "Não foi possível salvar o nome.",
+          )}
         </p>
       )}
       {updateName.isSuccess && !isDirty && (

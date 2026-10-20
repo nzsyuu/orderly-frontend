@@ -11,18 +11,22 @@ type CustomerHeaderProps = {
 };
 
 /** Header simples para as páginas da área do cliente (`/conta` e `/pedidos/*`). */
-export function CustomerHeader({ title, backHref, backLabel }: CustomerHeaderProps) {
+export function CustomerHeader({
+  title,
+  backHref,
+  backLabel,
+}: CustomerHeaderProps) {
   return (
     <header className="border-border bg-card sticky top-0 z-40 border-b">
-      <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
+      <div className="mx-auto flex h-16 max-w-2xl items-center gap-3 px-4">
         <Link
           href={backHref}
           aria-label={backLabel}
-          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-lg p-1.5 transition-colors outline-none focus-visible:ring-3"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground flex size-9 items-center justify-center rounded-lg transition-colors"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="size-5" />
         </Link>
-        <h1 className="font-display text-foreground min-w-0 flex-1 truncate text-lg font-bold">
+        <h1 className="font-condensed text-foreground min-w-0 flex-1 truncate text-xl font-extrabold">
           {title}
         </h1>
         <UserMenu />

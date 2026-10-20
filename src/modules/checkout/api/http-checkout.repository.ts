@@ -5,7 +5,10 @@ import type {
   SaleResponse,
   FreightResult,
 } from "@/modules/checkout/types/checkout";
-import { parseSaleResponse, parseFreight } from "@/modules/checkout/schemas/checkout.api";
+import {
+  parseSaleResponse,
+  parseFreight,
+} from "@/modules/checkout/schemas/checkout.api";
 
 export class HttpCheckoutRepository implements CheckoutRepository {
   constructor(private readonly http: AxiosInstance) {}

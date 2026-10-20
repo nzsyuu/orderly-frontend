@@ -1,62 +1,52 @@
 "use client";
 
-import { ChefHat } from "lucide-react";
+import Link from "next/link";
+import { ChefHat, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useSession } from "@/modules/auth/hooks/use-auth";
+import { StoreHoursPill } from "@/modules/stores/components/store-hours-pill";
 
-const titles: Record<string, { title: string; subtitle: string }> = {
-  "/painel": {
-    title: "Painel",
-    subtitle: "Vendas do período e o que fazer hoje na operação",
-  },
-  "/loja": {
-    title: "Loja",
-    subtitle: "Horário de funcionamento, limite de pedidos e status",
-  },
-  "/estoque": {
-    title: "Estoque",
-    subtitle: "Acompanhe insumos e produtos da sua operação",
-  },
-  "/produtos": {
-    title: "Produtos",
-    subtitle: "Catálogo de lanches e receitas da operação",
-  },
+const titles: Record<string, string> = {
+  "/painel": "Painel do dia",
+  "/painel/pedidos": "Pedidos",
+  "/loja": "Loja",
+  "/estoque": "Estoque",
+  "/produtos": "Produtos",
+  "/relatorios/vendas": "Relatório de vendas",
+  "/relatorios/estoque": "Relatório de estoque",
 };
 
-export function Topbar() {
+type TopbarProps = {
+  onOpenMenu?: () => void;
+};
+
+/** Barra compacta exibida em telas menores para abrir o menu lateral. */
+export function Topbar({ onOpenMenu }: TopbarProps) {
   const pathname = usePathname();
-  const page = titles[pathname] ?? {
-    title: "Orderly",
-    subtitle: "Gestão de lanchonetes",
-  };
-  const session = useSession();
-  const initials =
-    session.data?.name
-      ?.split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase() || "OR";
+  const title = titles[pathname] ?? "Orderly";
 
   return (
-    <header className="border-sidebar-border bg-sidebar text-sidebar-foreground flex h-16 items-center justify-between gap-4 border-b px-5 lg:px-8">
-      <div className="flex items-center gap-2.5">
-        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-8 w-8 items-center justify-center rounded-sm lg:hidden">
-          <ChefHat className="h-4 w-4" />
-        </div>
-        <div>
-          <h1 className="font-display text-sidebar-foreground text-lg leading-tight font-bold tracking-tight">
-            {page.title}
-          </h1>
-          <p className="text-sidebar-foreground/60 hidden text-xs sm:block">
-            {page.subtitle}
-          </p>
-        </div>
+    <header className="border-sidebar-border bg-sidebar text-sidebar-foreground sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b px-4 lg:hidden">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          aria-label="Abrir menu"
+          className="text-sidebar-foreground hover:bg-sidebar-accent -ml-1 flex size-9 items-center justify-center rounded-lg transition-colors"
+        >
+          <Menu className="size-5" />
+        </button>
+        <Link href="/painel" className="flex items-center gap-2">
+          <span className="bg-brand text-brand-foreground flex size-7 items-center justify-center rounded-md">
+            <ChefHat className="size-4" />
+          </span>
+          <span className="font-condensed truncate text-base font-bold">
+            {title}
+          </span>
+        </Link>
       </div>
 
-      <div className="bg-sidebar-accent text-sidebar-accent-foreground flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold lg:hidden">
-        {initials}
+      <div className="[&_span]:text-sidebar-foreground/80">
+        <StoreHoursPill />
       </div>
     </header>
   );

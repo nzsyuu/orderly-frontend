@@ -63,7 +63,9 @@ export function ChangePasswordForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5">
-          <span className="text-foreground text-xs font-medium">Nova senha</span>
+          <span className="text-foreground text-xs font-medium">
+            Nova senha
+          </span>
           <input
             {...register("newPassword", { onChange: clearFeedback })}
             type="password"
@@ -115,7 +117,9 @@ export function ChangePasswordForm() {
         disabled={updatePassword.isPending}
         className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 flex items-center justify-center gap-2 self-start rounded-lg px-5 py-2.5 text-sm font-medium transition-colors outline-none focus-visible:ring-3 disabled:opacity-50"
       >
-        {updatePassword.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {updatePassword.isPending && (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        )}
         Alterar senha
       </button>
     </form>

@@ -3,10 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSession } from "@/modules/auth/hooks/use-auth";
-import {
-  getHomeRouteByRole,
-  type UserRole,
-} from "@/modules/auth/types/user";
+import { getHomeRouteByRole, type UserRole } from "@/modules/auth/types/user";
 
 type AuthGateProps = {
   children: React.ReactNode;

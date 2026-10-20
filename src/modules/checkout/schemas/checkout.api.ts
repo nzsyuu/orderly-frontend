@@ -1,5 +1,8 @@
 import { z } from "zod";
-import type { SaleResponse, FreightResult } from "@/modules/checkout/types/checkout";
+import type {
+  SaleResponse,
+  FreightResult,
+} from "@/modules/checkout/types/checkout";
 import type { SaleStatus } from "@/modules/sales/types/sale";
 
 const saleItemSchema = z.object({

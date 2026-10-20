@@ -28,16 +28,16 @@ export function StoreStatusBadge({ store }: { store: Store }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-medium ${cfg.className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${cfg.className}`}
       title={
         isManual
           ? "Status definido manualmente"
           : "Status atualizado automaticamente"
       }
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+      <span className={`size-2 rounded-full ${cfg.dot}`} />
       {cfg.label}
-      {isManual ? <Lock className="h-3 w-3" aria-hidden /> : null}
+      {isManual ? <Lock className="size-3" aria-hidden /> : null}
     </span>
   );
 }

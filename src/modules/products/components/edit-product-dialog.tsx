@@ -172,17 +172,14 @@ export function EditProductDialog({
       subtitle="Atualiza nome, descrição, preço e disponibilidade."
       onClose={handleClose}
     >
-      <form
-        className="mt-5 flex flex-col gap-4"
-        onSubmit={onFormSubmit}
-      >
+      <form className="mt-5 flex flex-col gap-4" onSubmit={onFormSubmit}>
         {/* Imagem do produto */}
         <div className="flex flex-col gap-1.5">
           <span className="text-foreground text-sm font-medium">
             Imagem do produto
           </span>
           {displayImage ? (
-            <div className="relative h-40 w-full overflow-hidden rounded-lg border border-input">
+            <div className="border-input relative h-40 w-full overflow-hidden rounded-lg border">
               <Image
                 src={displayImage}
                 alt="Imagem do produto"
@@ -194,7 +191,7 @@ export function EditProductDialog({
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="flex h-7 items-center gap-1 rounded-full bg-black/50 px-2.5 text-xs text-white hover:bg-black/70 transition-colors"
+                  className="flex h-7 items-center gap-1 rounded-full bg-black/50 px-2.5 text-xs text-white transition-colors hover:bg-black/70"
                 >
                   <Upload className="h-3 w-3" />
                   Trocar
@@ -203,7 +200,7 @@ export function EditProductDialog({
                   <button
                     type="button"
                     onClick={removeNewImage}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
                   >
                     <X className="h-4 w-4" />
                   </button>

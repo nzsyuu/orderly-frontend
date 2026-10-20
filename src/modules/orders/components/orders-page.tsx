@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ChevronRight, Receipt } from "lucide-react";
 import { AuthGate } from "@/modules/auth/components/auth-gate";
-import { CustomerHeader } from "@/modules/shell/components/customer-header";
 import { OrderStatusBadge } from "@/modules/orders/components/order-status-badge";
 import { useMyOrders } from "@/modules/orders/hooks/use-orders";
 import {
@@ -12,6 +11,7 @@ import {
   shortOrderId,
 } from "@/modules/orders/lib/order-status";
 import type { Order } from "@/modules/orders/types/order";
+import { CustomerHeader } from "@/modules/shell/components/customer-header";
 import { formatBRL, formatDateTime } from "@/shared/lib/format";
 import { Skeleton } from "@/shared/ui/skeleton";
 
@@ -24,14 +24,14 @@ function ActiveOrderCard({ order }: { order: Order }) {
   return (
     <Link
       href={`/pedidos/${order.saleId}`}
-      className="border-primary/25 bg-card hover:border-primary/50 focus-visible:ring-ring/50 block rounded-lg border p-4 transition-colors outline-none focus-visible:ring-3"
+      className="border-primary/30 bg-card hover:border-primary block rounded-2xl border p-5 transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-display text-foreground text-base font-bold">
-            Pedido #{shortOrderId(order.saleId)}
+          <p className="font-condensed text-foreground text-xl font-extrabold">
+            Pedido #{shortOrderId(order.saleId).toUpperCase()}
           </p>
-          <p className="text-muted-foreground mt-0.5 text-xs">
+          <p className="text-muted-foreground tabular mt-0.5 text-xs">
             {formatDateTime(order.date)} · {itemsLabel(order)}
           </p>
         </div>
@@ -39,14 +39,14 @@ function ActiveOrderCard({ order }: { order: Order }) {
       </div>
 
       <div className="border-border mt-4 flex items-center justify-between border-t pt-3">
-        <span className="font-display text-foreground text-base font-bold">
+        <span className="font-condensed tabular text-foreground text-xl font-extrabold">
           {formatBRL(order.totalAmount)}
         </span>
-        <span className="text-primary flex items-center gap-1 text-sm font-medium">
+        <span className="text-primary flex items-center gap-1 text-sm font-semibold">
           {canConfirmDelivery(order.status)
             ? "Confirmar entrega"
             : "Acompanhar"}
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="size-4" />
         </span>
       </div>
     </Link>
@@ -58,18 +58,18 @@ function HistoryRow({ order }: { order: Order }) {
     <li>
       <Link
         href={`/pedidos/${order.saleId}`}
-        className="hover:bg-muted/50 focus-visible:ring-ring/50 flex items-center gap-3 px-4 py-3 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-inset"
+        className="hover:bg-muted/50 flex items-center gap-3 px-4 py-3.5 transition-colors"
       >
         <div className="min-w-0 flex-1">
-          <p className="text-foreground text-sm font-medium">
-            Pedido #{shortOrderId(order.saleId)}
+          <p className="font-condensed text-foreground text-base font-bold">
+            Pedido #{shortOrderId(order.saleId).toUpperCase()}
           </p>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground tabular text-xs">
             {formatDateTime(order.date)} · {itemsLabel(order)}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="text-foreground text-sm font-medium">
+          <span className="font-condensed tabular text-foreground text-base font-extrabold">
             {formatBRL(order.totalAmount)}
           </span>
           <OrderStatusBadge status={order.status} />
@@ -104,9 +104,9 @@ function Orders() {
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
         {orders.isPending && (
           <div className="flex flex-col gap-3">
-            <Skeleton className="h-28 w-full rounded-lg" />
-            <Skeleton className="h-16 w-full rounded-lg" />
-            <Skeleton className="h-16 w-full rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-2xl" />
+            <Skeleton className="h-16 w-full rounded-2xl" />
+            <Skeleton className="h-16 w-full rounded-2xl" />
           </div>
         )}
 
@@ -118,7 +118,7 @@ function Orders() {
 
         {orders.isSuccess && list.length === 0 && (
           <div className="flex flex-col items-center py-16 text-center">
-            <Receipt className="text-muted-foreground/30 mb-3 h-10 w-10" />
+            <Receipt className="text-muted-foreground/30 mb-3 size-11" />
             <p className="text-foreground text-sm font-semibold">
               Você ainda não fez pedidos
             </p>
@@ -127,7 +127,7 @@ function Orders() {
             </p>
             <Link
               href="/cardapio"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 mt-5 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 mt-5 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors"
             >
               Ver cardápio
             </Link>
@@ -136,7 +136,7 @@ function Orders() {
 
         {active.length > 0 && (
           <section className="mb-8">
-            <h2 className="font-display text-foreground mb-3 text-base font-bold">
+            <h2 className="font-condensed text-foreground mb-3 text-xl font-extrabold">
               Em andamento
             </h2>
             <div className="flex flex-col gap-3">
@@ -149,10 +149,10 @@ function Orders() {
 
         {history.length > 0 && (
           <section>
-            <h2 className="font-display text-foreground mb-3 text-base font-bold">
+            <h2 className="font-condensed text-foreground mb-3 text-xl font-extrabold">
               Histórico
             </h2>
-            <ul className="border-border bg-card divide-border divide-y overflow-hidden rounded-lg border">
+            <ul className="border-border bg-card divide-border divide-y overflow-hidden rounded-2xl border">
               {history.map((order) => (
                 <HistoryRow key={order.saleId} order={order} />
               ))}

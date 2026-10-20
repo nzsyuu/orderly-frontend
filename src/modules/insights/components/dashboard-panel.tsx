@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DashboardKpis } from "@/modules/sales/components/dashboard-kpis";
+import { Calendar } from "lucide-react";
 import { InsightsBriefing } from "@/modules/insights/components/insights-briefing";
 import { useInsights } from "@/modules/insights/hooks/use-insights";
+import { useProducts } from "@/modules/products/hooks/use-products";
+import { DashboardKpis } from "@/modules/sales/components/dashboard-kpis";
 import { useSales } from "@/modules/sales/hooks/use-sales";
 import { aggregateSalesKpis } from "@/modules/sales/types/sale";
-import { useProducts } from "@/modules/products/hooks/use-products";
 import { getApiErrorMessage } from "@/shared/http/api-error";
-import { fieldClassName } from "@/shared/ui/modal";
+import { Button } from "@/shared/ui/button";
+import { PageHeader } from "@/shared/ui/page";
 
 export function DashboardPanel() {
   const [date, setDate] = useState("");
@@ -34,21 +36,44 @@ export function DashboardPanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground shrink-0">Data</span>
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            className={fieldClassName}
-          />
-        </label>
-      </div>
-      <p className="text-muted-foreground -mt-3 text-xs">
-        Deixe a data vazia para hoje. Na demo, use uma terça (ex.: 2026-10-06)
-        para ver demanda preenchida.
-      </p>
+      <PageHeader
+        title="Painel do dia"
+        description="Resumo de vendas confirmadas e previsão de preparo, compras e validade para o turno."
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="border-input bg-card text-foreground flex h-10 items-center gap-2 rounded-lg border px-3 text-sm">
+              <Calendar className="text-muted-foreground size-4" aria-hidden />
+              <span className="text-muted-foreground text-xs">Data:</span>
+              <input
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+                className="tabular bg-transparent text-sm font-medium outline-none"
+              />
+            </label>
+            {date ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setDate("")}
+              >
+                Hoje
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setDate("2026-10-06")}
+                title="Carrega uma terça-feira com histórico de demonstração"
+              >
+                Ver terça de demo
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {salesQuery.isError ? (
         <p className="text-destructive text-sm">

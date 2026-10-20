@@ -25,7 +25,7 @@ function Section({
 }) {
   return (
     <section
-      className={`mb-4 rounded-lg border bg-card p-4 ${
+      className={`bg-card mb-4 rounded-2xl border p-5 ${
         tone === "danger" ? "border-destructive/30" : "border-border"
       }`}
     >
@@ -61,9 +61,7 @@ function Account() {
         title="Minha conta"
         backHref={getHomeRouteByRole(user.role)}
         backLabel={
-          user.role === "ROLE_ADMIN"
-            ? "Voltar ao painel"
-            : "Voltar ao cardápio"
+          user.role === "ROLE_ADMIN" ? "Voltar ao painel" : "Voltar ao cardápio"
         }
       />
 
@@ -71,7 +69,7 @@ function Account() {
         <div className="mb-6 flex items-center gap-4">
           <UserAvatar name={user.name} size="lg" />
           <div className="min-w-0">
-            <p className="font-display text-foreground truncate text-xl font-bold tracking-tight">
+            <p className="font-condensed text-foreground truncate text-2xl font-bold tracking-tight">
               {user.name}
             </p>
             <p className="text-muted-foreground truncate text-sm">

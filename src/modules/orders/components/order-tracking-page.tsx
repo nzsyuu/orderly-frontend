@@ -55,7 +55,7 @@ function formatAge(seconds: number) {
   return `Atualizado há ${Math.floor(seconds / 60)} min`;
 }
 
-const sectionClassName = "border-border bg-card mb-4 rounded-lg border p-4";
+const sectionClassName = "border-border bg-card mb-4 rounded-2xl border p-5";
 
 export function OrderTrackingPage(props: OrderTrackingPageProps) {
   return (
@@ -88,7 +88,11 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
   if (order.isPending) {
     return (
       <div className="bg-background flex min-h-screen flex-col">
-        <CustomerHeader title={title} backHref="/pedidos" backLabel="Voltar para meus pedidos" />
+        <CustomerHeader
+          title={title}
+          backHref="/pedidos"
+          backLabel="Voltar para meus pedidos"
+        />
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
           <Skeleton className="mb-4 h-32 w-full rounded-lg" />
           <Skeleton className="mb-4 h-56 w-full rounded-lg" />
@@ -101,7 +105,11 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
   if (order.isError || !data) {
     return (
       <div className="bg-background flex min-h-screen flex-col">
-        <CustomerHeader title={title} backHref="/pedidos" backLabel="Voltar para meus pedidos" />
+        <CustomerHeader
+          title={title}
+          backHref="/pedidos"
+          backLabel="Voltar para meus pedidos"
+        />
         <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-16 text-center">
           <ShoppingBag className="text-muted-foreground/30 mb-3 h-10 w-10" />
           <p className="text-foreground text-sm font-semibold">
@@ -139,7 +147,11 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
 
   return (
     <div className="bg-background flex min-h-screen flex-col">
-      <CustomerHeader title={title} backHref="/pedidos" backLabel="Voltar para meus pedidos" />
+      <CustomerHeader
+        title={title}
+        backHref="/pedidos"
+        backLabel="Voltar para meus pedidos"
+      />
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
         {isNew && (
@@ -178,7 +190,7 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="font-display text-foreground text-xl font-bold tracking-tight">
+                <h2 className="font-condensed text-foreground text-xl font-bold tracking-tight">
                   {cfg.label}
                 </h2>
                 <OrderStatusBadge status={data.status} />
@@ -241,9 +253,10 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
               >
                 <p className="text-foreground min-w-0 flex-1 text-sm">
                   {item.quantity}x{" "}
-                  {productNames.get(item.productId) ?? `Produto #${item.productId}`}
+                  {productNames.get(item.productId) ??
+                    `Produto #${item.productId}`}
                 </p>
-                <span className="text-foreground shrink-0 text-sm font-medium">
+                <span className="text-foreground tabular shrink-0 text-sm font-semibold">
                   {formatBRL(item.subtotal)}
                 </span>
               </li>
@@ -262,17 +275,19 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
           <div className="border-border mt-4 flex flex-col gap-1.5 border-t pt-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">{formatBRL(subtotal)}</span>
+              <span className="text-foreground tabular">
+                {formatBRL(subtotal)}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Taxa de entrega</span>
-              <span className="text-foreground">
+              <span className="text-foreground tabular">
                 {formatBRL(data.deliveryFee)}
               </span>
             </div>
-            <div className="mt-1 flex justify-between">
+            <div className="mt-1 flex items-baseline justify-between">
               <span className="text-foreground font-semibold">Total</span>
-              <span className="font-display text-foreground text-lg font-bold">
+              <span className="font-condensed text-foreground tabular text-xl font-extrabold">
                 {formatBRL(data.totalAmount)}
               </span>
             </div>
@@ -283,7 +298,8 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
           <div className="bg-destructive/10 flex items-center gap-1.5 rounded-lg px-3 py-2">
             <AlertTriangle className="text-destructive h-3.5 w-3.5 shrink-0" />
             <p className="text-destructive text-xs font-medium">
-              Não conseguimos atualizar o status agora. Tentando de novo em instantes.
+              Não conseguimos atualizar o status agora. Tentando de novo em
+              instantes.
             </p>
           </div>
         )}
@@ -342,7 +358,10 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
         pending={cancelOrder.isPending}
         error={
           cancelOrder.isError
-            ? getApiErrorMessage(cancelOrder.error, "Não foi possível cancelar o pedido.")
+            ? getApiErrorMessage(
+                cancelOrder.error,
+                "Não foi possível cancelar o pedido.",
+              )
             : null
         }
         onConfirm={handleCancel}
@@ -358,7 +377,10 @@ function OrderTracking({ saleId, isNew }: OrderTrackingPageProps) {
         pending={confirmDelivery.isPending}
         error={
           confirmDelivery.isError
-            ? getApiErrorMessage(confirmDelivery.error, "Não foi possível confirmar a entrega.")
+            ? getApiErrorMessage(
+                confirmDelivery.error,
+                "Não foi possível confirmar a entrega.",
+              )
             : null
         }
         onConfirm={handleDeliver}

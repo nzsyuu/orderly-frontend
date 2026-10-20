@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { Providers } from "@/app/providers";
 import "./globals.css";
 
-const inter = Inter({
+// Archivo variável (peso + largura): uma família só, com a largura
+// fazendo o papel de "display" nos números e títulos condensados.
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-archivo",
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -20,10 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="pt-BR"
-      className={`light bg-background ${inter.variable} ${jakarta.variable}`}
-    >
+    <html lang="pt-BR" className={`light bg-background ${archivo.variable}`}>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>

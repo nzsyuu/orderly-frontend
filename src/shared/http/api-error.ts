@@ -76,6 +76,9 @@ function translateApiMessage(message: string) {
   if (lower.includes("store zip code is required")) {
     return "Informe o CEP.";
   }
+  if (lower.includes("cannot be after")) {
+    return "A data inicial não pode ser posterior à data final.";
+  }
 
   return message;
 }

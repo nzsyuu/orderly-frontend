@@ -3,25 +3,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Trash2 } from "lucide-react";
-import { Button } from "@/shared/ui/button";
-import { formatBRL } from "@/shared/lib/format";
-import { getApiErrorMessage } from "@/shared/http/api-error";
+import { CookingPot, Trash2, X } from "lucide-react";
 import { useStockItems } from "@/modules/inventory/hooks/use-stock-items";
-import type {
-  Product,
-  ProductComposition,
-} from "@/modules/products/types/product";
-import {
-  addCompositionFormSchema,
-  type AddCompositionFormValues,
-} from "@/modules/products/schemas/product-form";
 import {
   useAddComposition,
   useProductCompositions,
   useRemoveComposition,
   useUpdateComposition,
 } from "@/modules/products/hooks/use-products";
+import {
+  addCompositionFormSchema,
+  type AddCompositionFormValues,
+} from "@/modules/products/schemas/product-form";
+import type {
+  Product,
+  ProductComposition,
+} from "@/modules/products/types/product";
+import { getApiErrorMessage } from "@/shared/http/api-error";
+import { formatBRL, formatPercent } from "@/shared/lib/format";
+import { Button } from "@/shared/ui/button";
+import { fieldClassName } from "@/shared/ui/modal";
 
 type ProductDrawerProps = {
   product: Product | null;
@@ -61,6 +62,14 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
     );
   }, [compositions, stockItems]);
 
+  const recipeCost = useMemo(() => {
+    const stockMap = new Map((stockItems ?? []).map((s) => [s.id, s.unitCost]));
+    return (compositions ?? []).reduce((sum, comp) => {
+      const unitCost = stockMap.get(comp.stockItemId) ?? 0;
+      return sum + comp.quantity * unitCost;
+    }, 0);
+  }, [compositions, stockItems]);
+
   useEffect(() => {
     if (!product) return;
 
@@ -74,42 +83,77 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
 
   if (!product) return null;
 
+  const grossProfit = product.price - recipeCost;
+  const marginPct = product.price > 0 ? (grossProfit / product.price) * 100 : 0;
+
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <button
         type="button"
         aria-label="Fechar painel"
-        className="absolute inset-0 bg-black/30"
+        className="animate-fade-in absolute inset-0 bg-[#0f1a13]/50 backdrop-blur-[2px]"
         onClick={onClose}
       />
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={`Receita de ${product.name}`}
-        className="border-border bg-card relative z-10 flex h-full w-full max-w-md flex-col border-l shadow-xl"
+        className="border-border bg-card animate-slide-in-right relative z-10 flex h-full w-full max-w-md flex-col border-l shadow-2xl"
       >
         <header className="border-border flex items-start justify-between gap-3 border-b p-5">
           <div className="min-w-0">
-            <p className="text-muted-foreground text-xs tracking-wider uppercase">
-              Receita
-            </p>
-            <h2 className="font-display text-foreground truncate text-xl font-bold">
+            <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+              <CookingPot className="size-3.5" aria-hidden />
+              <span>Ficha técnica</span>
+            </div>
+            <h2 className="font-condensed text-foreground mt-0.5 truncate text-2xl font-extrabold">
               {product.name}
             </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {formatBRL(product.price)}
-              {product.description ? ` · ${product.description}` : ""}
-            </p>
+            {product.description ? (
+              <p className="text-muted-foreground mt-1 text-xs">
+                {product.description}
+              </p>
+            ) : null}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="border-border text-muted-foreground hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg border"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex size-9 items-center justify-center rounded-lg transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="size-4" />
           </button>
         </header>
+
+        {/* Resumo financeiro da ficha técnica (Preço vs. CMV estimado) */}
+        <div className="border-border bg-muted/50 grid grid-cols-3 gap-2 border-b px-5 py-3">
+          <div>
+            <p className="text-muted-foreground text-[11px]">Preço</p>
+            <p className="font-condensed tabular text-foreground text-lg font-extrabold">
+              {formatBRL(product.price)}
+            </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-[11px]">Custo (CMV)</p>
+            <p className="font-condensed tabular text-foreground text-lg font-extrabold">
+              {formatBRL(recipeCost)}
+            </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-[11px]">Margem bruta</p>
+            <p
+              className={`font-condensed tabular text-lg font-extrabold ${
+                marginPct >= 50
+                  ? "text-success"
+                  : marginPct >= 25
+                    ? "text-foreground"
+                    : "text-warning"
+              }`}
+            >
+              {formatPercent(marginPct, 0)}
+            </p>
+          </div>
+        </div>
 
         <div className="flex-1 overflow-y-auto p-5">
           {compositionsQuery.isLoading && (
@@ -128,7 +172,7 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
             !compositionsQuery.isError &&
             (compositions ?? []).length === 0 && (
               <p className="text-muted-foreground text-sm">
-                Este produto ainda não tem ingredientes.
+                Este produto ainda não tem ingredientes vinculados.
               </p>
             )}
 
@@ -142,6 +186,7 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
                   key={`${item.id}-${item.quantity}`}
                   item={item}
                   unit={stockItem?.unit ?? "un"}
+                  unitCost={stockItem?.unitCost ?? 0}
                   name={
                     stockItem
                       ? stockItem.active
@@ -189,21 +234,21 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
               reset({ stockItemId: 0, quantity: 1 });
             })}
           >
-            <p className="text-foreground text-sm font-medium">
+            <p className="text-foreground text-sm font-semibold">
               Adicionar ingrediente
             </p>
             <label className="flex flex-col gap-1.5">
               <span className="text-muted-foreground text-xs">
-                Item de estoque
+                Insumo do estoque
               </span>
               <select
                 {...register("stockItemId", { valueAsNumber: true })}
-                className="border-input bg-background focus:border-ring focus:ring-ring/30 h-10 rounded-lg border px-3 text-sm outline-none focus:ring-2"
+                className={fieldClassName}
               >
                 <option value={0}>Selecione</option>
                 {availableStockItems.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name}
+                    {item.name} ({formatBRL(item.unitCost)}/{item.unit})
                   </option>
                 ))}
               </select>
@@ -215,13 +260,13 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-muted-foreground text-xs">
-                Quantidade por unidade
+                Quantidade por lanche
               </span>
               <input
                 type="number"
                 min={1}
                 {...register("quantity", { valueAsNumber: true })}
-                className="border-input bg-background focus:border-ring focus:ring-ring/30 h-10 rounded-lg border px-3 text-sm outline-none focus:ring-2"
+                className={fieldClassName}
               />
               {errors.quantity && (
                 <span className="text-destructive text-xs">
@@ -245,7 +290,9 @@ export function ProductDrawer({ product, onClose }: ProductDrawerProps) {
                 addComposition.isPending || availableStockItems.length === 0
               }
             >
-              {addComposition.isPending ? "Adicionando..." : "Adicionar"}
+              {addComposition.isPending
+                ? "Adicionando..."
+                : "Adicionar à receita"}
             </Button>
           </form>
         </div>
@@ -258,6 +305,7 @@ function CompositionRow({
   item,
   name,
   unit,
+  unitCost,
   pending,
   onSave,
   onRemove,
@@ -265,6 +313,7 @@ function CompositionRow({
   item: ProductComposition;
   name: string;
   unit: string;
+  unitCost: number;
   pending: boolean;
   onSave: (quantity: number) => Promise<unknown>;
   onRemove: () => void;
@@ -273,17 +322,24 @@ function CompositionRow({
   const dirty = quantity !== item.quantity;
 
   return (
-    <li className="border-border flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+    <li className="border-border flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3">
       <div className="min-w-0 flex-1">
-        <p className="text-foreground truncate text-sm font-medium">{name}</p>
-        <div className="mt-1.5 flex items-center gap-2">
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="text-foreground truncate text-sm font-semibold">
+            {name}
+          </p>
+          <span className="text-muted-foreground tabular text-xs">
+            {formatBRL(quantity * unitCost)}
+          </span>
+        </div>
+        <div className="mt-2 flex items-center gap-2">
           <input
             type="number"
             min={1}
             step={1}
             value={quantity}
             onChange={(event) => setQuantity(Number(event.target.value))}
-            className="border-input bg-background focus:border-ring focus:ring-ring/30 h-8 w-16 rounded-lg border px-2 text-sm outline-none focus:ring-2"
+            className="border-input bg-background focus:border-primary focus:ring-primary/15 tabular h-8 w-20 rounded-lg border px-2 text-sm font-medium outline-none focus:ring-4"
             aria-label={`Quantidade de ${name}`}
           />
           <span className="text-muted-foreground text-xs">
@@ -302,15 +358,17 @@ function CompositionRow({
             Salvar
           </Button>
         )}
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           aria-label={`Remover ${name}`}
           disabled={pending}
           onClick={onRemove}
-          className="border-border text-muted-foreground hover:border-destructive/40 hover:text-destructive flex h-8 w-8 items-center justify-center rounded-lg border disabled:opacity-50"
+          className="hover:text-destructive"
         >
-          <Trash2 className="h-4 w-4" />
-        </button>
+          <Trash2 className="size-4" />
+        </Button>
       </div>
     </li>
   );

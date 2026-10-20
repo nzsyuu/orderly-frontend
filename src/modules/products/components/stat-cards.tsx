@@ -1,26 +1,62 @@
 "use client";
 
-import { CheckCircle2, Ban } from "lucide-react";
+import { Ban, CheckCircle2, Package } from "lucide-react";
 import { useProducts } from "@/modules/products/hooks/use-products";
+import { formatBRL, formatNumber } from "@/shared/lib/format";
+import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-export function ProductStatCards() {
+export type ProductStatusFilter = "todos" | "ativos" | "inativos";
+
+type ProductStatCardsProps = {
+  filter?: ProductStatusFilter;
+  onFilterChange?: (next: ProductStatusFilter) => void;
+};
+
+export function ProductStatCards({
+  filter = "todos",
+  onFilterChange,
+}: ProductStatCardsProps) {
   const { data: products = [], isLoading } = useProducts();
 
+  const total = products.length;
   const active = products.filter((product) => product.active).length;
   const inactive = products.filter((product) => !product.active).length;
+  const avgPrice =
+    total > 0 ? products.reduce((sum, p) => sum + p.price, 0) / total : 0;
 
-  const cards = [
+  const cards: {
+    id: ProductStatusFilter;
+    label: string;
+    helper: string;
+    valor: string;
+    icon: typeof Package;
+    tone: string;
+    iconWrap: string;
+  }[] = [
     {
-      label: "Ativos",
-      valor: String(active),
-      icon: CheckCircle2,
-      tone: "text-success",
-      iconWrap: "bg-success/15 text-success",
+      id: "todos",
+      label: "Total no catálogo",
+      helper: total > 0 ? `Preço médio ${formatBRL(avgPrice)}` : "Sem itens",
+      valor: formatNumber(total),
+      icon: Package,
+      tone: "text-foreground",
+      iconWrap: "bg-accent text-accent-foreground",
     },
     {
-      label: "Inativos",
-      valor: String(inactive),
+      id: "ativos",
+      label: "Visíveis no cardápio",
+      helper: "Disponíveis para venda",
+      valor: formatNumber(active),
+      icon: CheckCircle2,
+      tone: "text-success",
+      iconWrap: "bg-success/12 text-success",
+    },
+    {
+      id: "inativos",
+      label: "Pausados / inativos",
+      helper: "Ocultos para o cliente",
+      valor: formatNumber(inactive),
       icon: Ban,
       tone: "text-muted-foreground",
       iconWrap: "bg-muted text-muted-foreground",
@@ -28,29 +64,58 @@ export function ProductStatCards() {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {cards.map((card) => (
-        <div
-          key={card.label}
-          className="border-border bg-card flex items-center gap-4 rounded-md border p-5"
-        >
-          <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-sm ${card.iconWrap}`}
-          >
-            <card.icon className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-muted-foreground text-sm">{card.label}</p>
-            {isLoading ? (
-              <Skeleton className="mt-1 h-7 w-12" />
-            ) : (
-              <p className={`font-display text-2xl font-bold ${card.tone}`}>
-                {card.valor}
-              </p>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {cards.map((card) => {
+        const isSelected = onFilterChange && filter === card.id;
+        return (
+          <button
+            key={card.label}
+            type="button"
+            onClick={() =>
+              onFilterChange?.(
+                filter === card.id && card.id !== "todos" ? "todos" : card.id,
+              )
+            }
+            className={cn(
+              "border-border bg-card flex flex-col justify-between rounded-2xl border p-5 text-left transition-colors",
+              onFilterChange && "hover:border-foreground/30 cursor-pointer",
+              isSelected && "border-primary ring-primary/15 ring-2",
             )}
-          </div>
-        </div>
-      ))}
+          >
+            <div className="flex w-full items-center justify-between gap-2">
+              <p className="text-muted-foreground text-sm font-medium">
+                {card.label}
+              </p>
+              <span
+                className={cn(
+                  "flex size-9 shrink-0 items-center justify-center rounded-lg",
+                  card.iconWrap,
+                )}
+              >
+                <card.icon className="size-4" aria-hidden />
+              </span>
+            </div>
+
+            <div className="mt-3">
+              {isLoading ? (
+                <Skeleton className="h-9 w-16" />
+              ) : (
+                <p
+                  className={cn(
+                    "font-condensed tabular text-3xl leading-none font-extrabold sm:text-4xl",
+                    card.tone,
+                  )}
+                >
+                  {card.valor}
+                </p>
+              )}
+              <p className="text-muted-foreground mt-2 text-xs">
+                {card.helper}
+              </p>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

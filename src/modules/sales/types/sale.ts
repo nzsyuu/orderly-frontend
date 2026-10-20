@@ -1,9 +1,5 @@
 export type SaleStatus =
-  | "PENDENTE"
-  | "EM_PREPARO"
-  | "EM_ROTA"
-  | "ENTREGUE"
-  | "CANCELADA";
+  "PENDENTE" | "EM_PREPARO" | "EM_ROTA" | "ENTREGUE" | "CANCELADA";
 
 /** Status que contam como venda nos KPIs. */
 export const COUNTED_SALE_STATUSES: readonly string[] = ["EM_ROTA", "ENTREGUE"];
@@ -72,9 +68,10 @@ export function aggregateSalesKpis(
 
   return {
     confirmedCount: confirmed.length,
-    revenue: Math.round(
-      confirmed.reduce((sum, sale) => sum + sale.totalAmount, 0) * 100,
-    ) / 100,
+    revenue:
+      Math.round(
+        confirmed.reduce((sum, sale) => sum + sale.totalAmount, 0) * 100,
+      ) / 100,
     topProducts,
   };
 }

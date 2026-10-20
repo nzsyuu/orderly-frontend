@@ -1,5 +1,8 @@
 import type { AxiosInstance } from "axios";
-import type { ProductRepository, UploadImageResult } from "@/modules/products/api/repository";
+import type {
+  ProductRepository,
+  UploadImageResult,
+} from "@/modules/products/api/repository";
 import type {
   AddCompositionInput,
   CreateProductInput,

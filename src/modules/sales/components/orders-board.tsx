@@ -1,53 +1,88 @@
 "use client";
 
-import { useMemo } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
-  useSales,
-  useConfirmSale,
-  useDispatchSale,
-  useDeliverSale,
-  useCancelSale,
-} from "@/modules/sales/hooks/use-sales";
+  Bike,
+  CheckCheck,
+  Clock,
+  Flame,
+  MapPin,
+  MessageSquareWarning,
+  Store,
+  XCircle,
+} from "lucide-react";
 import { useProducts } from "@/modules/products/hooks/use-products";
+import {
+  useCancelSale,
+  useConfirmSale,
+  useDeliverSale,
+  useDispatchSale,
+  useSales,
+} from "@/modules/sales/hooks/use-sales";
+import { getSaleStatusMeta } from "@/modules/sales/lib/sale-status";
 import type { Sale } from "@/modules/sales/types/sale";
-import { formatBRL } from "@/shared/lib/format";
+import { getApiErrorMessage } from "@/shared/http/api-error";
+import { formatBRL, formatElapsed } from "@/shared/lib/format";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { PageHeader, Panel } from "@/shared/ui/page";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 const COLUMNS = [
   {
-    id: "PENDENTE",
-    title: "Pendentes",
-    bgClass: "bg-amber-100",
-    headerClass: "bg-amber-400 text-amber-900",
-    cardClass: "border-amber-300 bg-amber-50",
+    id: "PENDENTE" as const,
+    title: "Na fila",
+    subtitle: "Aguardando aceite",
+    icon: Clock,
+    accentBar: "bg-warning",
+    emptyText: "Nenhum pedido aguardando aceite.",
   },
   {
-    id: "EM_PREPARO",
-    title: "Em Preparo",
-    bgClass: "bg-blue-50",
-    headerClass: "bg-blue-400 text-blue-900",
-    cardClass: "border-blue-200 bg-blue-50/50",
+    id: "EM_PREPARO" as const,
+    title: "Na chapa",
+    subtitle: "Cozinha preparando",
+    icon: Flame,
+    accentBar: "bg-brand",
+    emptyText: "Nenhum pedido em preparo agora.",
   },
   {
-    id: "EM_ROTA",
-    title: "Em Rota",
-    bgClass: "bg-orange-50",
-    headerClass: "bg-orange-400 text-orange-900",
-    cardClass: "border-orange-200 bg-orange-50/50",
+    id: "EM_ROTA" as const,
+    title: "Em rota",
+    subtitle: "Saiu para entrega",
+    icon: Bike,
+    accentBar: "bg-info",
+    emptyText: "Nenhuma entrega a caminho.",
   },
   {
-    id: "ENTREGUE",
-    title: "Entregues (Hoje)",
-    bgClass: "bg-emerald-50",
-    headerClass: "bg-emerald-400 text-emerald-900",
-    cardClass: "border-emerald-200 bg-emerald-50/50",
+    id: "ENTREGUE" as const,
+    title: "Entregues hoje",
+    subtitle: "Concluídos no dia",
+    icon: CheckCheck,
+    accentBar: "bg-success",
+    emptyText: "Nenhuma entrega concluída hoje ainda.",
   },
 ];
 
 export function OrdersBoard() {
-  const { data: sales = [], isLoading, isError } = useSales(undefined, {
+  const {
+    data: sales = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useSales(undefined, {
     refetchInterval: 10000,
   });
   const { data: products = [] } = useProducts();
+
+  const [now, setNow] = useState(() => Date.now());
+  const [cancelingSale, setCancelingSale] = useState<Sale | null>(null);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const productNames = useMemo(() => {
     const map = new Map<number, string>();
@@ -74,149 +109,310 @@ export function OrdersBoard() {
 
     for (const sale of sales) {
       if (sale.status === "CANCELADA") continue;
-      
-      // Filter ENTREGUE for today only
+
       if (sale.status === "ENTREGUE") {
         const saleDate = sale.date.split("T")[0];
         if (saleDate !== today) continue;
       }
-      
+
       if (grouped[sale.status as keyof typeof grouped]) {
         grouped[sale.status as keyof typeof grouped].push(sale);
       }
     }
 
-    // Sort by date ASC (oldest first for queues)
     Object.values(grouped).forEach((list) => {
-      list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      list.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      );
     });
 
     return grouped;
   }, [sales]);
 
-  if (isLoading) {
-    return <div className="text-muted-foreground p-8 text-center">Carregando painel de pedidos...</div>;
-  }
-
-  if (isError) {
-    return <div className="text-destructive p-8 text-center">Erro ao carregar pedidos.</div>;
-  }
+  const activeCount =
+    salesByStatus.PENDENTE.length +
+    salesByStatus.EM_PREPARO.length +
+    salesByStatus.EM_ROTA.length;
 
   return (
-    <div className="flex h-full w-full gap-4 overflow-x-auto pb-4">
-      {COLUMNS.map((col) => {
-        const columnSales = salesByStatus[col.id as keyof typeof salesByStatus] || [];
-        
-        return (
-          <div
-            key={col.id}
-            className={`flex h-full w-[350px] shrink-0 flex-col overflow-hidden rounded-xl border border-gray-200 shadow-sm ${col.bgClass}`}
-          >
-            {/* Header */}
-            <div className={`flex items-center justify-between p-3 px-4 font-bold ${col.headerClass}`}>
-              <span className="uppercase tracking-wider">{col.title}</span>
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/50 px-2 text-sm text-black">
-                {columnSales.length}
-              </span>
-            </div>
-
-            {/* List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              {columnSales.map((sale) => (
-                <div
-                  key={sale.saleId}
-                  className={`flex flex-col gap-3 rounded-lg border p-4 shadow-sm ${col.cardClass}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold">
-                      #{sale.saleId.slice(0, 5).toUpperCase()}
-                    </span>
-                    <span className="text-muted-foreground text-sm font-medium tabular-nums">
-                      {new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(sale.date))}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1 text-sm">
-                    {sale.items.map((item, i) => (
-                      <div key={i} className="flex justify-between font-medium">
-                        <span>
-                          {item.quantity}x {productNames.get(item.productId) || `Prod #${item.productId}`}
-                        </span>
-                        <span className="text-muted-foreground">{formatBRL(item.subtotal)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {sale.observation && (
-                    <div className="rounded border border-red-200 bg-red-50 p-2 text-sm font-semibold text-red-900">
-                      OBS: {sale.observation}
-                    </div>
-                  )}
-
-                  <div className="text-muted-foreground mt-2 border-t pt-2 text-xs">
-                    {sale.deliveryStreet}, {sale.deliveryNumber} - {sale.deliveryNeighborhood}
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="font-bold text-base">{formatBRL(sale.totalAmount)}</span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="mt-2 flex gap-2">
-                    {sale.status === "PENDENTE" && (
-                      <button
-                        onClick={() => confirmSale.mutate(sale.saleId)}
-                        disabled={confirmSale.isPending}
-                        className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        Aceitar Pedido
-                      </button>
-                    )}
-                    {sale.status === "EM_PREPARO" && (
-                      <button
-                        onClick={() => dispatchSale.mutate(sale.saleId)}
-                        disabled={dispatchSale.isPending}
-                        className="flex-1 rounded bg-orange-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-orange-700 disabled:opacity-50"
-                      >
-                        Despachar
-                      </button>
-                    )}
-                    {sale.status === "EM_ROTA" && (
-                      <button
-                        onClick={() => deliverSale.mutate(sale.saleId)}
-                        disabled={deliverSale.isPending}
-                        className="flex-1 rounded bg-emerald-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50"
-                      >
-                        Confirmar Entrega
-                      </button>
-                    )}
-                    
-                    {sale.status === "PENDENTE" && (
-                      <button
-                        onClick={() => {
-                          if (confirm("Tem certeza que deseja cancelar este pedido?")) {
-                            cancelSale.mutate(sale.saleId);
-                          }
-                        }}
-                        disabled={cancelSale.isPending}
-                        className="rounded bg-red-100 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-200 disabled:opacity-50"
-                      >
-                        Cancelar
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {columnSales.length === 0 && (
-                <div className="text-muted-foreground/60 p-4 text-center text-sm font-medium">
-                  Nenhum pedido nesta etapa.
-                </div>
-              )}
-            </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Comandas do turno"
+        description="Fila ao vivo da cozinha e expedição. Atualiza automaticamente a cada 10 segundos."
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="border-border bg-card text-muted-foreground inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-xs font-medium">
+              <span className="bg-success size-2 rounded-full" />
+              {activeCount === 0
+                ? "Fila livre"
+                : `${activeCount} ${activeCount === 1 ? "pedido em andamento" : "pedidos em andamento"}`}
+            </span>
+            <Link
+              href="/loja"
+              className="border-input bg-card text-foreground hover:bg-muted inline-flex h-10 items-center gap-2 rounded-lg border px-3.5 text-sm font-semibold transition-colors"
+            >
+              <Store className="size-4" />
+              Status da loja
+            </Link>
           </div>
-        );
-      })}
+        }
+      />
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {COLUMNS.map((col) => (
+            <Skeleton key={col.id} className="h-[460px] rounded-2xl" />
+          ))}
+        </div>
+      ) : isError ? (
+        <Panel>
+          <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+            <XCircle className="text-destructive size-8" />
+            <p className="text-foreground font-semibold">
+              Não foi possível carregar o quadro de pedidos
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Verifique a conexão com a API e tente novamente.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2"
+              onClick={() => refetch()}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        </Panel>
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {COLUMNS.map((col) => {
+            const columnSales = salesByStatus[col.id] || [];
+            const meta = getSaleStatusMeta(col.id);
+            const ColIcon = col.icon;
+
+            return (
+              <section
+                key={col.id}
+                aria-label={col.title}
+                className="border-border bg-muted/55 flex min-h-[420px] flex-col overflow-hidden rounded-2xl border"
+              >
+                {/* Faixa superior da raia */}
+                <div className={cn("h-1.5 w-full", col.accentBar)} />
+
+                <header className="border-border bg-card flex items-center justify-between gap-2 border-b px-4 py-3.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                        meta.badgeClassName,
+                      )}
+                    >
+                      <ColIcon className="size-4" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <h2 className="text-foreground truncate text-sm font-bold">
+                        {col.title}
+                      </h2>
+                      <p className="text-muted-foreground truncate text-xs">
+                        {col.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="font-condensed tabular bg-muted text-foreground inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-sm font-extrabold">
+                    {columnSales.length}
+                  </span>
+                </header>
+
+                {/* Comandas da coluna */}
+                <div className="flex flex-1 flex-col gap-3 p-3">
+                  {columnSales.map((sale) => {
+                    const isDelivered = sale.status === "ENTREGUE";
+                    const timeStr = new Intl.DateTimeFormat("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(new Date(sale.date));
+
+                    return (
+                      <article
+                        key={sale.saleId}
+                        className="border-border bg-card flex flex-col rounded-xl border p-4 shadow-[0_1px_2px_rgb(15_26_19/0.06)]"
+                      >
+                        {/* Cabeçalho da comanda */}
+                        <div className="border-border flex items-baseline justify-between gap-2 border-b border-dashed pb-2.5">
+                          <span className="font-condensed tabular text-foreground text-xl font-extrabold">
+                            #{sale.saleId.slice(0, 6).toUpperCase()}
+                          </span>
+                          <div className="text-muted-foreground tabular flex items-center gap-1.5 text-xs font-medium">
+                            <span>{timeStr}</span>
+                            {!isDelivered ? (
+                              <span className="bg-muted text-foreground rounded-md px-1.5 py-0.5 text-[11px] font-semibold">
+                                {formatElapsed(sale.date, now)}
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {/* Itens do pedido */}
+                        <ul className="mt-3 flex flex-col gap-1.5 text-sm">
+                          {sale.items.map((item, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start justify-between gap-2"
+                            >
+                              <span className="text-foreground font-medium">
+                                <strong className="font-condensed tabular text-primary mr-1 font-extrabold">
+                                  {item.quantity}×
+                                </strong>
+                                {productNames.get(item.productId) ||
+                                  `Produto #${item.productId}`}
+                              </span>
+                              <span className="text-muted-foreground tabular shrink-0 text-xs">
+                                {formatBRL(item.subtotal)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Observação da cozinha */}
+                        {sale.observation ? (
+                          <div className="bg-warning/12 text-warning-foreground mt-3 flex items-start gap-2 rounded-lg p-2.5 text-xs font-semibold">
+                            <MessageSquareWarning
+                              className="text-warning mt-0.5 size-4 shrink-0"
+                              aria-hidden
+                            />
+                            <span>Obs: {sale.observation}</span>
+                          </div>
+                        ) : null}
+
+                        {/* Endereço e valor total */}
+                        <div className="border-border mt-3 border-t border-dashed pt-2.5">
+                          <p className="text-muted-foreground flex items-start gap-1.5 text-xs">
+                            <MapPin
+                              className="mt-0.5 size-3.5 shrink-0"
+                              aria-hidden
+                            />
+                            <span>
+                              {sale.deliveryStreet}, {sale.deliveryNumber} ·{" "}
+                              {sale.deliveryNeighborhood}
+                            </span>
+                          </p>
+
+                          <div className="mt-2.5 flex items-baseline justify-between">
+                            <span className="text-muted-foreground text-xs">
+                              Total
+                            </span>
+                            <span className="font-condensed tabular text-foreground text-lg font-extrabold">
+                              {formatBRL(sale.totalAmount)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Ações da comanda */}
+                        {!isDelivered ? (
+                          <div className="mt-3 flex gap-1.5">
+                            {sale.status === "PENDENTE" ? (
+                              <>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="brand"
+                                  className="min-w-0 flex-1 px-2.5"
+                                  disabled={confirmSale.isPending}
+                                  onClick={() =>
+                                    confirmSale.mutate(sale.saleId)
+                                  }
+                                >
+                                  Aceitar pedido
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="destructive-soft"
+                                  className="shrink-0 px-2.5"
+                                  disabled={cancelSale.isPending}
+                                  onClick={() => {
+                                    cancelSale.reset();
+                                    setCancelingSale(sale);
+                                  }}
+                                >
+                                  Cancelar
+                                </Button>
+                              </>
+                            ) : null}
+
+                            {sale.status === "EM_PREPARO" ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="w-full"
+                                disabled={dispatchSale.isPending}
+                                onClick={() => dispatchSale.mutate(sale.saleId)}
+                              >
+                                <Bike className="size-4" />
+                                Despachar entrega
+                              </Button>
+                            ) : null}
+
+                            {sale.status === "EM_ROTA" ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="bg-success text-success-foreground hover:bg-success/90 w-full"
+                                disabled={deliverSale.isPending}
+                                onClick={() => deliverSale.mutate(sale.saleId)}
+                              >
+                                <CheckCheck className="size-4" />
+                                Confirmar entrega
+                              </Button>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+
+                  {columnSales.length === 0 ? (
+                    <div className="text-muted-foreground flex flex-1 items-center justify-center px-4 py-12 text-center text-xs">
+                      {col.emptyText}
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={cancelingSale !== null}
+        title="Cancelar este pedido?"
+        description={
+          cancelingSale
+            ? `O pedido #${cancelingSale.saleId.slice(0, 6).toUpperCase()} (${formatBRL(cancelingSale.totalAmount)}) será marcado como cancelado.`
+            : ""
+        }
+        confirmLabel="Cancelar pedido"
+        cancelLabel="Voltar"
+        tone="destructive"
+        pending={cancelSale.isPending}
+        error={
+          cancelSale.isError
+            ? getApiErrorMessage(
+                cancelSale.error,
+                "Não foi possível cancelar o pedido.",
+              )
+            : null
+        }
+        onConfirm={() => {
+          if (!cancelingSale) return;
+          cancelSale.mutate(cancelingSale.saleId, {
+            onSuccess: () => setCancelingSale(null),
+          });
+        }}
+        onClose={() => setCancelingSale(null)}
+      />
     </div>
   );
 }

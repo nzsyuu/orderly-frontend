@@ -183,7 +183,10 @@ export function AddressesSection() {
         pending={deleteAddress.isPending}
         error={
           deleteAddress.isError
-            ? getApiErrorMessage(deleteAddress.error, "Não foi possível excluir o endereço.")
+            ? getApiErrorMessage(
+                deleteAddress.error,
+                "Não foi possível excluir o endereço.",
+              )
             : null
         }
         onConfirm={handleDelete}

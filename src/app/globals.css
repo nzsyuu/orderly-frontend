@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-info: var(--info);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -33,55 +36,206 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-2xl: calc(var(--radius) * 1.75);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Orderly — paleta "lanchonete"
+ * Picles   #1C3326  verde profundo: sidebar, primária, tinta dos gráficos
+ * Mostarda #F4B400  marca: só nos CTAs mais fortes e destaques
+ * Bandeja  #EDEFE9  fundo frio, cor de papel de bandeja
+ * Ketchup  #C7361E  destrutivo, cancelamentos, perdas
+ * Alface   #267A40  sucesso, entregue, entradas
+ * Cheddar  #B85C0A  avisos, pendências, estoque baixo
+ * Água     #2B7A8C  saiu para entrega
+ */
 :root {
   color-scheme: light;
-  --background: oklch(0.985 0.002 75);
-  --foreground: oklch(0.26 0.025 48);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.26 0.025 48);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.26 0.025 48);
-  --primary: oklch(0.4 0.07 45);
-  --primary-foreground: oklch(0.98 0.008 80);
-  --secondary: oklch(0.96 0.006 70);
-  --secondary-foreground: oklch(0.36 0.04 48);
-  --muted: oklch(0.96 0.005 70);
-  --muted-foreground: oklch(0.52 0.025 52);
-  --accent: oklch(0.95 0.02 55);
-  --accent-foreground: oklch(0.4 0.07 45);
-  --destructive: oklch(0.55 0.2 27);
-  --success: oklch(0.6 0.12 150);
-  --success-foreground: oklch(0.98 0.012 80);
-  --warning: oklch(0.72 0.14 55);
-  --warning-foreground: oklch(0.3 0.06 55);
-  --border: oklch(0.9 0.008 65);
-  --input: oklch(0.9 0.008 65);
-  --ring: oklch(0.42 0.07 48);
-  --radius: 0.25rem;
-  --sidebar: oklch(0.31 0.035 45);
-  --sidebar-foreground: oklch(0.95 0.012 75);
-  --sidebar-primary: oklch(0.97 0.01 80);
-  --sidebar-primary-foreground: oklch(0.31 0.05 45);
-  --sidebar-accent: oklch(0.38 0.04 47);
-  --sidebar-accent-foreground: oklch(0.97 0.01 75);
-  --sidebar-border: oklch(0.4 0.04 47);
-  --sidebar-ring: oklch(0.97 0.01 80);
+  --background: #edefe9;
+  --foreground: #18231d;
+  --card: #ffffff;
+  --card-foreground: #18231d;
+  --popover: #ffffff;
+  --popover-foreground: #18231d;
+  --primary: #1c3326;
+  --primary-foreground: #f6f7f2;
+  --brand: #f4b400;
+  --brand-foreground: #18231d;
+  --secondary: #e3e7df;
+  --secondary-foreground: #1c3326;
+  --muted: #e7eae3;
+  --muted-foreground: #58635b;
+  --accent: #e4ebe2;
+  --accent-foreground: #1c3326;
+  --destructive: #c7361e;
+  --success: #267a40;
+  --success-foreground: #f6f7f2;
+  --warning: #b85c0a;
+  --warning-foreground: #5a2c03;
+  --info: #2b7a8c;
+  --border: #d8ddd3;
+  --input: #c9d0c4;
+  --ring: #1c3326;
+  --radius: 0.625rem;
+  --sidebar: #1c3326;
+  --sidebar-foreground: #e9eee6;
+  --sidebar-primary: #f4b400;
+  --sidebar-primary-foreground: #18231d;
+  --sidebar-accent: #27432f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2c4734;
+  --sidebar-ring: #f4b400;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 55%, transparent);
+    color: var(--foreground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--primary);
+  }
+}
+
+@layer utilities {
+  /* Archivo é variável em largura: condensada para números e títulos. */
+  .font-condensed {
+    font-variation-settings: "wdth" 72;
+  }
+  .font-semicondensed {
+    font-variation-settings: "wdth" 86;
+  }
+  .font-expanded {
+    font-variation-settings: "wdth" 112;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 160ms ease-out both;
+}
+.animate-pop-in {
+  animation: pop-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-slide-in-left {
+  animation: slide-in-left 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-rise-in {
+  animation: rise-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* Barras dos gráficos crescem uma vez quando o relatório carrega. */
+.animate-grow-y {
+  transform-origin: bottom;
+  animation: grow-y 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-grow-x {
+  transform-origin: left;
+  animation: grow-x 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

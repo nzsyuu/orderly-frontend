@@ -16,7 +16,10 @@ type DeleteAccountDialogProps = {
   onClose: () => void;
 };
 
-export function DeleteAccountDialog({ open, onClose }: DeleteAccountDialogProps) {
+export function DeleteAccountDialog({
+  open,
+  onClose,
+}: DeleteAccountDialogProps) {
   const deleteAccount = useDeleteAccount();
   const {
     register,
@@ -91,7 +94,9 @@ export function DeleteAccountDialog({ open, onClose }: DeleteAccountDialogProps)
             disabled={deleteAccount.isPending}
             className="bg-destructive hover:bg-destructive/90 focus-visible:ring-ring/50 flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors outline-none focus-visible:ring-3 disabled:opacity-50"
           >
-            {deleteAccount.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {deleteAccount.isPending && (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            )}
             Excluir conta
           </button>
         </div>

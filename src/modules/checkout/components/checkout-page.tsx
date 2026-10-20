@@ -37,7 +37,9 @@ export function CheckoutPage() {
   const checkout = useCheckout();
 
   const [step, setStep] = useState<CheckoutStep>("review");
-  const [overrideAddressId, setOverrideAddressId] = useState<string | null>(null);
+  const [overrideAddressId, setOverrideAddressId] = useState<string | null>(
+    null,
+  );
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [observation, setObservation] = useState("");
   const [error, setError] = useState("");
@@ -58,7 +60,10 @@ export function CheckoutPage() {
       if (found) return found;
     }
 
-    const storedId = typeof window !== "undefined" ? localStorage.getItem("activeAddressId") : null;
+    const storedId =
+      typeof window !== "undefined"
+        ? localStorage.getItem("activeAddressId")
+        : null;
     if (storedId) {
       const found = list.find((a) => a.addressId === storedId);
       if (found) return found;
@@ -92,7 +97,9 @@ export function CheckoutPage() {
           router.replace(`/pedidos/${sale.saleId}?novo=1`);
         },
         onError: (err) => {
-          setError(getApiErrorMessage(err, "Não foi possível finalizar o pedido."));
+          setError(
+            getApiErrorMessage(err, "Não foi possível finalizar o pedido."),
+          );
         },
       },
     );
@@ -107,7 +114,12 @@ export function CheckoutPage() {
 
   // Redirect if cart is empty (only on review step)
   useEffect(() => {
-    if (cart.isSuccess && items.length === 0 && step === "review" && !checkout.isSuccess) {
+    if (
+      cart.isSuccess &&
+      items.length === 0 &&
+      step === "review" &&
+      !checkout.isSuccess
+    ) {
       router.replace("/cardapio");
     }
   }, [cart.isSuccess, items.length, step, checkout.isSuccess, router]);
@@ -136,35 +148,39 @@ export function CheckoutPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className="font-display text-foreground text-lg font-bold">
-              Confirmar Pedido
+            <h1 className="font-condensed text-foreground text-xl font-bold tracking-tight">
+              Confirmar pedido
             </h1>
           </div>
         </header>
 
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
           {/* User info */}
-          <section className="border-border bg-card mb-4 rounded-lg border p-4">
-            <div className="flex items-center gap-2 mb-2">
+          <section className="border-border bg-card mb-4 rounded-2xl border p-5">
+            <div className="mb-2 flex items-center gap-2">
               <User className="text-primary h-4 w-4" />
-              <h2 className="text-foreground text-sm font-semibold">Seus dados</h2>
+              <h2 className="text-foreground text-sm font-semibold">
+                Seus dados
+              </h2>
             </div>
-            <p className="text-foreground text-sm">{user.name}</p>
+            <p className="text-foreground text-sm font-medium">{user.name}</p>
             <p className="text-muted-foreground text-xs">{user.email}</p>
           </section>
 
           {/* Delivery address */}
-          <section className="border-border bg-card mb-4 rounded-lg border p-4">
-            <div className="flex items-center justify-between mb-2">
+          <section className="border-border bg-card mb-4 rounded-2xl border p-5">
+            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="text-primary h-4 w-4" />
-                <h2 className="text-foreground text-sm font-semibold">Endereço de entrega</h2>
+                <h2 className="text-foreground text-sm font-semibold">
+                  Endereço de entrega
+                </h2>
               </div>
               {hasAddresses && (
                 <button
                   type="button"
                   onClick={() => setAddressSelectorOpen(true)}
-                  className="text-primary text-xs font-medium hover:underline"
+                  className="text-primary text-xs font-semibold hover:underline"
                 >
                   Alterar
                 </button>
@@ -175,39 +191,49 @@ export function CheckoutPage() {
               <button
                 type="button"
                 onClick={() => setAddressFormOpen(true)}
-                className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30 w-full rounded-lg border border-dashed px-4 py-3 text-sm font-medium transition-colors"
+                className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30 w-full rounded-xl border border-dashed px-4 py-3 text-sm font-semibold transition-colors"
               >
                 + Cadastrar endereço
               </button>
             ) : selectedAddress ? (
               <div>
-                <p className="text-foreground text-sm font-medium">{selectedAddress.name}</p>
+                <p className="text-foreground text-sm font-semibold">
+                  {selectedAddress.name}
+                </p>
                 <p className="text-muted-foreground text-xs leading-relaxed">
                   {selectedAddress.street}, {selectedAddress.number}
-                  {selectedAddress.complement ? ` - ${selectedAddress.complement}` : ""}
+                  {selectedAddress.complement
+                    ? ` - ${selectedAddress.complement}`
+                    : ""}
                   <br />
-                  {selectedAddress.neighborhood}, {selectedAddress.city} - {selectedAddress.state}
+                  {selectedAddress.neighborhood}, {selectedAddress.city} -{" "}
+                  {selectedAddress.state}
                   <br />
                   CEP: {selectedAddress.zipCode}
                 </p>
               </div>
             ) : (
-              <p className="text-muted-foreground text-xs">Selecionando endereço...</p>
+              <p className="text-muted-foreground text-xs">
+                Selecionando endereço...
+              </p>
             )}
 
             {freight.isError && (
-              <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-2">
+              <div className="bg-destructive/10 mt-2 flex items-center gap-1.5 rounded-xl px-3 py-2">
                 <AlertTriangle className="text-destructive h-3.5 w-3.5 shrink-0" />
                 <p className="text-destructive text-xs font-medium">
-                  {getApiErrorMessage(freight.error, "Não foi possível calcular o frete.")}
+                  {getApiErrorMessage(
+                    freight.error,
+                    "Não foi possível calcular o frete.",
+                  )}
                 </p>
               </div>
             )}
           </section>
 
           {/* Items */}
-          <section className="border-border bg-card mb-4 rounded-lg border p-4">
-            <div className="flex items-center gap-2 mb-3">
+          <section className="border-border bg-card mb-4 rounded-2xl border p-5">
+            <div className="mb-3 flex items-center gap-2">
               <ShoppingCart className="text-primary h-4 w-4" />
               <h2 className="text-foreground text-sm font-semibold">
                 Itens ({items.length})
@@ -220,8 +246,11 @@ export function CheckoutPage() {
                   className="flex items-start justify-between gap-2"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-foreground text-sm">
-                      {item.quantity}x {item.productName}
+                    <p className="text-foreground text-sm font-medium">
+                      <span className="tabular font-bold">
+                        {item.quantity}×
+                      </span>{" "}
+                      {item.productName}
                     </p>
                     {item.observation && (
                       <p className="text-muted-foreground text-xs italic">
@@ -229,7 +258,7 @@ export function CheckoutPage() {
                       </p>
                     )}
                   </div>
-                  <span className="text-foreground shrink-0 text-sm font-medium">
+                  <span className="text-foreground tabular shrink-0 text-sm font-semibold">
                     {formatBRL(item.totalPrice)}
                   </span>
                 </li>
@@ -238,30 +267,34 @@ export function CheckoutPage() {
           </section>
 
           {/* Observation */}
-          <section className="border-border bg-card mb-4 rounded-lg border p-4">
-            <div className="flex items-center gap-2 mb-2">
+          <section className="border-border bg-card mb-4 rounded-2xl border p-5">
+            <div className="mb-2 flex items-center gap-2">
               <MessageSquare className="text-primary h-4 w-4" />
-              <h2 className="text-foreground text-sm font-semibold">Observação do pedido</h2>
+              <h2 className="text-foreground text-sm font-semibold">
+                Observação do pedido
+              </h2>
             </div>
             <textarea
               rows={2}
               placeholder="Ex: Troco para R$ 100, sem cebola..."
               value={observation}
               onChange={(e) => setObservation(e.target.value)}
-              className="border-input bg-background focus:border-ring focus:ring-ring/30 w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
+              className="border-input bg-background focus:border-ring focus:ring-ring/30 w-full resize-none rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2"
             />
           </section>
 
           {/* Summary */}
-          <section className="border-border bg-card mb-4 rounded-lg border p-4">
+          <section className="border-border bg-card mb-4 rounded-2xl border p-5">
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">{formatBRL(subTotal)}</span>
+                <span className="text-foreground tabular">
+                  {formatBRL(subTotal)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Taxa de entrega</span>
-                <span className="text-foreground">
+                <span className="text-foreground tabular">
                   {freight.isPending ? (
                     <Loader2 className="inline h-3 w-3 animate-spin" />
                   ) : freight.isError ? (
@@ -272,9 +305,9 @@ export function CheckoutPage() {
                 </span>
               </div>
               <div className="border-border mt-1 border-t pt-2">
-                <div className="flex justify-between">
+                <div className="flex items-baseline justify-between">
                   <span className="text-foreground font-semibold">Total</span>
-                  <span className="font-display text-foreground text-lg font-bold">
+                  <span className="font-condensed text-foreground tabular text-xl font-extrabold">
                     {freight.isPending ? (
                       <Loader2 className="inline h-4 w-4 animate-spin" />
                     ) : freight.isError ? (
@@ -294,9 +327,11 @@ export function CheckoutPage() {
           <div className="mx-auto max-w-2xl">
             <button
               type="button"
-              disabled={!selectedAddress || freight.isPending || freight.isError}
+              disabled={
+                !selectedAddress || freight.isPending || freight.isError
+              }
               onClick={() => setStep("payment")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-50"
             >
               Ir para pagamento
               <ChevronRight className="h-4 w-4" />
@@ -340,15 +375,15 @@ export function CheckoutPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className="font-display text-foreground text-lg font-bold">
+            <h1 className="font-condensed text-foreground text-xl font-bold tracking-tight">
               Pagamento
             </h1>
           </div>
         </header>
 
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
-          <section className="border-border bg-card rounded-lg border p-4">
-            <div className="flex items-center gap-2 mb-4">
+          <section className="border-border bg-card rounded-2xl border p-5">
+            <div className="mb-4 flex items-center gap-2">
               <CreditCard className="text-primary h-4 w-4" />
               <h2 className="text-foreground text-sm font-semibold">
                 Forma de pagamento
@@ -364,7 +399,7 @@ export function CheckoutPage() {
                     key={method.id}
                     type="button"
                     onClick={() => setSelectedPayment(method.id)}
-                    className={`flex items-center gap-3 rounded-lg border p-3.5 text-left transition-colors ${
+                    className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
                       isSelected
                         ? "border-primary/40 bg-primary/5"
                         : "border-border hover:bg-muted/50"
@@ -380,7 +415,7 @@ export function CheckoutPage() {
                       <Icon className="h-5 w-5" />
                     </div>
                     <span
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-semibold ${
                         isSelected ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
@@ -396,15 +431,17 @@ export function CheckoutPage() {
           </section>
 
           {/* Order total reminder */}
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-muted/50 px-4 py-3">
-            <span className="text-muted-foreground text-sm">Total do pedido</span>
-            <span className="font-display text-foreground text-lg font-bold">
+          <div className="bg-muted/50 mt-4 flex items-baseline justify-between rounded-2xl px-5 py-3.5">
+            <span className="text-muted-foreground text-sm">
+              Total do pedido
+            </span>
+            <span className="font-condensed text-foreground tabular text-xl font-extrabold">
               {formatBRL(total)}
             </span>
           </div>
 
           {error && (
-            <div className="mt-4 flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-2">
+            <div className="bg-destructive/10 mt-4 flex items-center gap-1.5 rounded-lg px-3 py-2">
               <AlertTriangle className="text-destructive h-3.5 w-3.5 shrink-0" />
               <p className="text-destructive text-xs font-medium">{error}</p>
             </div>
@@ -425,9 +462,7 @@ export function CheckoutPage() {
                   Processando...
                 </>
               ) : (
-                <>
-                  Confirmar pedido • {formatBRL(total)}
-                </>
+                <>Confirmar pedido • {formatBRL(total)}</>
               )}
             </button>
           </div>
