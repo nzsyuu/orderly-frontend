@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -20,13 +21,20 @@ import { Skeleton } from "@/shared/ui/skeleton";
 type StatCardsProps = {
   activeStatus?: StockStatus | "todos";
   onStatusChange?: (status: StockStatus | "todos") => void;
+  stockId?: number | null;
 };
 
 export function StatCards({
   activeStatus = "todos",
   onStatusChange,
+  stockId,
 }: StatCardsProps) {
-  const { data: items = [], isLoading } = useStockItems();
+  const { data: allItems = [], isLoading } = useStockItems();
+
+  const items = useMemo(() => {
+    if (!stockId) return allItems;
+    return allItems.filter((item) => item.stockId === stockId);
+  }, [allItems, stockId]);
 
   const total = items.length;
   const baixo = items.filter((item) => statusOfItem(item) === "baixo").length;

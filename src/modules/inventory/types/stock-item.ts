@@ -19,6 +19,24 @@ export type StockItem = {
   active: boolean;
 };
 
+export type ListStockItemsParams = {
+  page?: number;
+  size?: number;
+  name?: string;
+  category?: string;
+  active?: boolean;
+};
+
+export type PagedResponse<T> = {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  isFirst: boolean;
+  last: boolean;
+};
+
 export type CreateStockInput = {
   name: string;
 };

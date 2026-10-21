@@ -3,6 +3,8 @@ import type { InventoryRepository } from "@/modules/inventory/api/repository";
 import type {
   CreateStockInput,
   CreateStockItemInput,
+  ListStockItemsParams,
+  PagedResponse,
   RegisterMovementInput,
   Stock,
   StockItem,
@@ -12,6 +14,7 @@ import type {
 import {
   parseStock,
   parseStockItem,
+  parseStockItemPagedResponse,
   parseStockLot,
   stockItemListResponseSchema,
   stockListResponseSchema,
@@ -36,9 +39,31 @@ export class HttpInventoryRepository implements InventoryRepository {
     return stockItemListResponseSchema.parse(data).map(parseStockItem);
   }
 
-  async listByStock(stockId: number): Promise<StockItem[]> {
-    const { data } = await this.http.get(`/api/stocks/${stockId}/items`);
-    return stockItemListResponseSchema.parse(data).map(parseStockItem);
+  async listByStock(
+    stockId: number,
+    params?: ListStockItemsParams,
+  ): Promise<PagedResponse<StockItem>> {
+    const cleanParams: Record<string, unknown> = {};
+    if (params?.page !== undefined) cleanParams.page = params.page;
+    if (params?.size !== undefined) cleanParams.size = params.size;
+    if (params?.name && params.name.trim().length > 0) {
+      cleanParams.name = params.name.trim();
+    }
+    if (
+      params?.category &&
+      params.category.trim().length > 0 &&
+      params.category !== "todos"
+    ) {
+      cleanParams.category = params.category.trim();
+    }
+    if (params?.active !== undefined) {
+      cleanParams.active = params.active;
+    }
+
+    const { data } = await this.http.get(`/api/stocks/${stockId}/items`, {
+      params: cleanParams,
+    });
+    return parseStockItemPagedResponse(data);
   }
 
   async getById(id: number): Promise<StockItem> {

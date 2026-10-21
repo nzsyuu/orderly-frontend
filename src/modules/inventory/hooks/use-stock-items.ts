@@ -1,7 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type {
   CreateStockInput,
   CreateStockItemInput,
+  ListStockItemsParams,
   RegisterMovementInput,
   UpdateStockItemInput,
 } from "@/modules/inventory/types/stock-item";
@@ -11,8 +17,11 @@ import { productsQueryKey } from "@/modules/products/hooks/use-products";
 export const stocksQueryKey = ["stocks"] as const;
 export const stockItemsQueryKey = ["stock-items"] as const;
 
-export function stockItemsByStockQueryKey(stockId: number) {
-  return ["stock-items", stockId] as const;
+export function stockItemsByStockQueryKey(
+  stockId: number,
+  params?: ListStockItemsParams,
+) {
+  return ["stock-items", "by-stock", stockId, params ?? {}] as const;
 }
 
 export function stockLotsQueryKey(stockItemId: number) {
@@ -33,14 +42,18 @@ export function useStockItems() {
   });
 }
 
-export function useStockItemsByStock(stockId: number | null) {
+export function useStockItemsByStock(
+  stockId: number | null,
+  params?: ListStockItemsParams,
+) {
   return useQuery({
     queryKey:
       stockId === null
-        ? ["stock-items", "empty"]
-        : stockItemsByStockQueryKey(stockId),
-    queryFn: () => inventoryRepository.listByStock(stockId as number),
+        ? (["stock-items", "empty", params ?? {}] as const)
+        : stockItemsByStockQueryKey(stockId, params),
+    queryFn: () => inventoryRepository.listByStock(stockId as number, params),
     enabled: stockId !== null,
+    placeholderData: keepPreviousData,
   });
 }
 

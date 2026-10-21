@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type {
+  PagedResponse,
   Stock,
   StockItem,
   StockLot,
@@ -26,12 +27,28 @@ export const stockItemResponseSchema = z.object({
 
 export const stockItemListResponseSchema = z.array(stockItemResponseSchema);
 
+export const stockItemPagedResponseSchema = z.object({
+  content: z.array(stockItemResponseSchema),
+  page: z.coerce.number(),
+  size: z.coerce.number(),
+  totalElements: z.coerce.number(),
+  totalPages: z.coerce.number(),
+  isFirst: z.boolean(),
+  last: z.boolean(),
+});
+
 export function parseStock(data: unknown): Stock {
   return stockResponseSchema.parse(data);
 }
 
 export function parseStockItem(data: unknown): StockItem {
   return stockItemResponseSchema.parse(data);
+}
+
+export function parseStockItemPagedResponse(
+  data: unknown,
+): PagedResponse<StockItem> {
+  return stockItemPagedResponseSchema.parse(data);
 }
 
 export const stockLotResponseSchema = z.object({
